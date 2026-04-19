@@ -286,7 +286,13 @@ function parseData() {
     .map(([n,v])=>({n, plan:v.plan, done:v.done}))
     .sort((a,b)=>b.plan-a.plan).slice(0,20);
 
+  // today_wk = weeks elapsed since PROJ_START
+  const todayWk = Math.max(0, Math.floor((today - PROJ_START) / (7*86400000)));
+  const lastInstallDate2 = lastInstallDate;
+
   return {
+    today_wk: todayWk,
+    last_install_date: lastInstallDate2,
     meta:{
       total:TOTAL, installed:totalInstalled, in_progress:inProgress,
       not_started:notStarted, remaining, pct_done:pctDone, hold, overdue,

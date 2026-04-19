@@ -1901,7 +1901,7 @@ function buildBurndown(){
   const ex=Chart.getChart(cv); if(ex) ex.destroy();
 
   // คำนวณ BD จาก DAILY_PROG_PLAN/ACT ถ้ามี ไม่งั้น weekly fallback
-  const TOTAL_T = window.TOTAL_HQ || 0;
+  const TOTAL_T = window.TOTAL_HKT || 0;
   let _labels, _bdPlan, _bdAct, useDaily;
 
   if(DAILY_PROG_LABELS.length > 0){
@@ -2344,7 +2344,7 @@ function buildProgressCharts(){
         '<span style="font-size:13px;font-weight:700">'+fname+'</span>'+
         '<div style="display:flex;gap:8px;margin-left:auto;font-size:11px">'+
           '<span style="color:#818cf8">SW: '+swPctLbl+'</span>'+
-          ''+ // HQ ไม่มี AP per site
+          ''+ // HKT ไม่มี AP per site
         '</div>'+
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
@@ -2402,7 +2402,7 @@ function buildProgressCharts(){
           null,  // di=0: SW แผน — ใช้จาก data
           ftotal>0?Math.round(fdone/ftotal*1000)/10:null,  // di=1: จริง
           null,  // di=2: AP แผน — ใช้จาก data
-          null,  // di=3: AP จริง HQ ไม่มี
+          null,  // di=3: AP จริง HKT ไม่มี
         ];
         pairs.forEach(([di,sharedIdx])=>{
           if(sharedIdx<0) return;
@@ -3059,7 +3059,7 @@ function buildFabBreakdown(){
   if(!tbody || !tfoot) return;
   tbody.innerHTML=''; tfoot.innerHTML='';
 
-  // HQ ใช้ SITES (total/done รวม) แทน FABRICS ที่แยก SW/AP/Infra
+  // HKT ใช้ SITES (total/done รวม) แทน FABRICS ที่แยก SW/AP/Infra
   const useSites = SITES.length > 0 && FABRICS.every(f=>f.sw.t===0&&f.ap.t===0&&f.inf.t===0);
   const COLORS=['#ea6c1a','#2bc48a','#ff9f43','#a855f7','#22b8cf','#f76707','#74c0fc'];
 
@@ -3256,7 +3256,7 @@ async function loadData(){
     }
     // ── คำนวณ daily SW/AP/BD/Fab (รันหลัง DAILY_L/SW/AP/FAB_DAILY populate แล้ว) ──
     if(DAILY_PROG_LABELS.length && DAILY_L.length){
-      const TOTAL_T = window.TOTAL_HQ || 0;
+      const TOTAL_T = window.TOTAL_HKT || 0;
 
       // map label → index
       const lblMap={};
@@ -3370,14 +3370,14 @@ async function loadData(){
     const finTH = `${fd.getDate()} ${thM[fd.getMonth()]} ${(fd.getFullYear()+543)%100}`;
 
     // topbar
-    const TOTAL_HQ = meta.total || 0; window.TOTAL_HQ = TOTAL_HQ;
+    const TOTAL_HKT = meta.total || 0; window.TOTAL_HKT = TOTAL_HKT;
     window._projStartStr = meta.proj_start || '2026-02-03';
     window._projEndStr   = meta.proj_end   || '2026-04-12';
     // อัพเดทวันเริ่ม/สิ้นสุดใน tab แผนงาน
     const _fmtTH2=dt=>{const d=new Date(dt+'T00:00:00');return d.getDate()+' '+thM[d.getMonth()]+' '+((d.getFullYear()+543)%100);};
     if(_e('pc-proj-start')) _e('pc-proj-start').textContent=_fmtTH2(meta.proj_start);
     if(_e('pc-proj-end'))   _e('pc-proj-end').textContent=_fmtTH2(meta.proj_end);
-    if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${TOTAL_HQ}`;
+    if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${TOTAL_HKT}`;
     if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
     if(_e('pill-days-left')) _e('pill-days-left').textContent = ins.days_left;
     if(_e('plan-days-left')) _e('plan-days-left').textContent = ins.days_left+' วัน';
@@ -3419,7 +3419,7 @@ async function loadData(){
     const ap  = meta.installed_ap  || 0;
     const inf = meta.installed_inf || 0;
     // total จาก meta (server คำนวณ) หรือ fallback
-    // total จาก server — HQ ไม่มี sw.t/ap.t ใน fabrics
+    // total จาก server — HKT ไม่มี sw.t/ap.t ใน fabrics
     const swT = meta.sw_total  || fabrics.reduce((a,f)=>a+(f.sw?.t||0),0) || 0; window._swT=swT;
     const apT = meta.ap_total  || fabrics.reduce((a,f)=>a+(f.ap?.t||0),0) || 0; window._apT=apT;
     const infT= meta.inf_total || fabrics.reduce((a,f)=>a+(f.inf?.t||0),0) || 0;
@@ -3639,7 +3639,7 @@ async function loadData(){
       }
     }
 
-    console.log(`✓ HQ Dynamic: ${meta.installed}/${meta.total} rate=${ins.daily_rate} req=${ins.req_rate} W${d.today_wk+7}`);
+    console.log(`✓ HKT Dynamic: ${meta.installed}/${meta.total} rate=${ins.daily_rate} req=${ins.req_rate}`);
   } catch(e){
     console.error('loadData error:', e.message);
     console.error('Stack:', e.stack);
@@ -3783,7 +3783,7 @@ async function exportPDF(){
     const date=new Date().toLocaleDateString('th-TH');
     const html=`<!DOCTYPE html><html><head>
   <link rel="icon" href="data:,"><meta charset="UTF-8">
-<title>SAT Migration Dashboard — HQ</title>
+<title>SAT Migration Dashboard — HKT</title>
 <style>
 @page{size:A4 landscape;margin:8mm 10mm}
 *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
