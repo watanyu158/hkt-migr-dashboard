@@ -1908,10 +1908,11 @@ function buildBurndown(){
     // daily: BD = TOTAL - cumulative
     useDaily = true;
     _labels  = DAILY_PROG_LABELS;
+    const _tot = window.TOTAL_HKT || BD_PLAN[0] || TOTAL_T || 1;
     _bdPlan  = DAILY_BD_PLAN.length ? DAILY_BD_PLAN
-               : DAILY_PROG_PLAN.map(p=>Math.round((1 - p/100)*TOTAL_T));
+               : DAILY_PROG_PLAN.map(p=>Math.round((1 - p/100)*_tot));
     _bdAct   = DAILY_BD_ACT.length  ? DAILY_BD_ACT
-               : DAILY_PROG_ACT.map(p=>p!=null?Math.round((1-p/100)*TOTAL_T):null);
+               : DAILY_PROG_ACT.map(p=>p!=null?Math.round((1-p/100)*_tot):null);
   } else {
     // weekly fallback
     useDaily = false;
@@ -1973,7 +1974,7 @@ function buildBurndown(){
       scales:{
         x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
              callback:(v,i)=>i%tickStep===0?_labels[i]:null},grid:{display:false}},
-        y:{min:0,ticks:{font:{size:10},color:'#94a3c4',
+        y:{min:0,suggestedMax:window.TOTAL_HKT||252,ticks:{font:{size:10},color:'#94a3c4',
              callback:v=>v.toLocaleString()},grid:{color:'#f0f4ff'}}
       }
     }
