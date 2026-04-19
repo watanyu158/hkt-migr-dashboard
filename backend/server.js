@@ -36,11 +36,13 @@ function parseData() {
   if (!wsWL) throw new Error('HKT-WL sheet not found');
   const wlRows = XLSX.utils.sheet_to_json(wsWL, { header:1, defval:null });
 
-  // ── หา last valid row ของ WL (ไม่รวม summary row สุดท้าย) ──
+  // ── หา last valid row ของ WL — หยุดก่อน Summary/Progress row ──
   let wlEndIdx = wlRows.length - 1;
-  for (let i = wlRows.length - 1; i >= 1; i--) {
-    const qty = wlRows[i][3];
-    if (typeof qty === 'number' && qty > 0 && qty <= 100) { wlEndIdx = i; break; }
+  for (let i = 1; i < wlRows.length; i++) {
+    const c2 = wlRows[i][2] ? String(wlRows[i][2]).trim() : '';
+    if (c2.includes('Summary') || c2.includes('Progress') || c2.includes('%')) {
+      wlEndIdx = i - 1; break;
+    }
   }
 
   // ── คำนวณ PROJ_START / PROJ_END จาก col T(19) ──
