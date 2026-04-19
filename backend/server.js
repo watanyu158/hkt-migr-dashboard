@@ -279,7 +279,13 @@ function parseData() {
   // sw_inf_sites
   const swInfSites = Object.entries(swInfSiteMap)
     .filter(([,v]) => v.sw_t+v.inf_t > 0)
-    .map(([name,v]) => ({ name, sw_t:v.sw_t, sw_d:v.sw_d, inf_t:v.inf_t, inf_d:v.inf_d }));
+    .map(([name,v]) => ({
+      name,
+      sw_t:v.sw_t, sw_d:v.sw_d,
+      inf_t:v.inf_t, inf_d:v.inf_d,
+      total: v.sw_t+v.inf_t,
+      done:  v.sw_d+v.inf_d,
+    }));
 
   // types
   const types = Object.entries(typeMap)
