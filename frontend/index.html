@@ -1191,8 +1191,8 @@ main { padding: 12px 10px; }
   <div class="g3" style="margin-bottom:14px">
     <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📅 ระยะเวลาโครงการ</div>
       <div class="g2" style="gap:7px">
-        <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v">10 ก.พ. 69</div></div>
-        <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v">23 มิ.ย. 69</div></div>
+        <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v" id="pc-proj-start">–</div></div>
+        <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v" id="pc-proj-end">–</div></div>
         <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v" id="plan-proj-days">133 วัน</div></div>
         <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red" id="plan-days-left">– วัน</div></div>
       </div>
@@ -3373,6 +3373,10 @@ async function loadData(){
     const TOTAL_HQ = meta.total || 0; window.TOTAL_HQ = TOTAL_HQ;
     window._projStartStr = meta.proj_start || '2026-02-03';
     window._projEndStr   = meta.proj_end   || '2026-04-12';
+    // อัพเดทวันเริ่ม/สิ้นสุดใน tab แผนงาน
+    const _fmtTH2=dt=>{const d=new Date(dt+'T00:00:00');return d.getDate()+' '+thM[d.getMonth()]+' '+((d.getFullYear()+543)%100);};
+    if(_e('pc-proj-start')) _e('pc-proj-start').textContent=_fmtTH2(meta.proj_start);
+    if(_e('pc-proj-end'))   _e('pc-proj-end').textContent=_fmtTH2(meta.proj_end);
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${TOTAL_HQ}`;
     if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
     if(_e('pill-days-left')) _e('pill-days-left').textContent = ins.days_left;

@@ -14,7 +14,7 @@ let cacheTime = 0, cachedData = null;
 
 function toDate(v) {
   if (typeof v !== 'number' || v <= 0) return null;
-  const serial = v > 200000 ? v - 198347 : v;
+  const serial = v > 200000 ? v - 198327 : v;
   const d = new Date((serial - 25569) * 86400000);
   return isNaN(d) ? null : d;
 }
