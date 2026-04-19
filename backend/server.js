@@ -303,7 +303,7 @@ function parseData() {
       total:TOTAL, installed:totalInstalled, in_progress:inProgress,
       not_started:notStarted, remaining, pct_done:pctDone, hold, overdue,
       installed_sw:instSW, installed_ap:instAP, installed_inf:instInf,
-      sw_total:swTotal, ap_total:TOTAL_AP, inf_total:TOTAL_INF,
+      sw_total:TOTAL_SW, ap_total:TOTAL_AP, inf_total:TOTAL_INF, sw_inf_total:swTotal,
       on_time_qty:onTimeQty, on_time_pct:onTimePct,
       on_time_early:earlyQty, on_time_late:lateQty,
       proj_start:projStartStr, proj_end:projEndStr,
