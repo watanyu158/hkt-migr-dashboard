@@ -210,6 +210,7 @@ function parseData() {
   const WK_MS = 7*86400000;
   const nWk = Math.ceil((PROJ_END - PROJ_START) / WK_MS) + 1;
   const wkLabels = [], planPct = [], actPct = [];
+  const wkBdPlan = [], wkBdAct = [];
   let wkCumPlan = 0, wkCumAct = 0;
   for (let w = 0; w < nWk; w++) {
     const ws = new Date(PROJ_START.getTime() + w*WK_MS);
@@ -221,10 +222,12 @@ function parseData() {
       wp += dayPlanMap[k]||0;
       wa += dayActMap[k]||0;
     }
+    wkBdPlan.push(TOTAL - wkCumPlan);
     wkCumPlan += wp; wkCumAct += wa;
     planPct.push(Math.round(Math.min(wkCumPlan/TOTAL,1)*10000)/100);
     const inWkAct = lastActDt && we <= lastActDt;
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
+    wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
 
   // ── insight ──
@@ -318,12 +321,13 @@ function parseData() {
     },
     weekly:{
       labels:wkLabels, plan_all:planPct, act_all:actPct,
-      bd_plan:bdPlan, bd_act:bdAct,
+      bd_plan:wkBdPlan, bd_act:wkBdAct,
     },
     daily_progress:{
       labels:dailyLabels, plan_cum:dailyPlanCum, act_cum:dailyActCum,
       sw_plan:dailyPlanCum, sw_act:dailySwActCum,
       ap_plan:dailyPlanCum, ap_act:dailyApActCum,
+      bd_plan:bdPlan, bd_act:bdAct,
       fab: (()=>{
         const fab={};
         Object.keys(swInfSiteMap).forEach(site=>{
