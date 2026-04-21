@@ -190,14 +190,22 @@ function parseData() {
   const dailySwActCum = [], dailyApActCum = [];
   let cumSwAct = 0, cumApAct = 0;
 
-  const nDays = dailyLabels.length;
+  // distribute AP plan proportional กับ SW+Infra plan ต่อวัน
+  const _swInfPlanSum = Object.values(dayPlanMap).reduce((a,v)=>a+v,0)||1;
+  const dayPlanFull = {}; // dayPlanMap + AP distributed
+  dailyLabels.forEach(lbl=>{
+    const[dd,mm]=lbl.split('/'); const k=`2026-${mm}-${dd}`;
+    const swInfQty = dayPlanMap[k]||0;
+    const apShare  = TOTAL_AP * (swInfQty/_swInfPlanSum);
+    dayPlanFull[k] = swInfQty + apShare;
+  });
+
   dailyLabels.forEach((lbl, di) => {
     const [dd,mm] = lbl.split('/');
     const k = `2026-${mm}-${dd}`;
-    // linear burndown plan: TOTAL → 0
-    bdPlan.push(Math.round(TOTAL * (1 - di / Math.max(nDays-1, 1))));
+    bdPlan.push(Math.round(TOTAL - cumPlan));
     bdAct.push(lastActDt && new Date(k+'T00:00:00') <= lastActDt ? TOTAL - cumAct : null);
-    cumPlan += dayPlanMap[k]||0;
+    cumPlan += dayPlanFull[k]||0;
     cumAct  += dayActMap[k]||0;
     cumSwAct += daySwActMap[k]||0;
     cumApAct += dayApActMap[k]||0;
@@ -354,7 +362,16 @@ function parseData() {
       labels:dailyLabels, plan_cum:dailyPlanCum, act_cum:dailyActCum,
       sw_plan:dailyPlanCum, sw_act:dailySwActCum,
       ap_plan:dailyPlanCum, ap_act:dailyApActCum,
-      bd_plan:bdPlan, bd_act:bdAct,
+      bd_plan:(()=>{
+        // rescale ให้จบที่ 0 พอดี
+        if(!bdPlan.length) return bdPlan;
+        const lastVal = bdPlan[bdPlan.length-1];
+        if(lastVal===0) return bdPlan;
+        // กระจาย remainder ให้ลดลงจาก lastVal→0 ใน 1 step
+        bdPlan[bdPlan.length-1]=0;
+        return bdPlan;
+      })(),
+      bd_act:bdAct,
       fab: (()=>{
         const fab={};
         Object.keys(swInfSiteMap).forEach(site=>{
