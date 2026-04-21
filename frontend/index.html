@@ -2824,8 +2824,8 @@ function buildGraphs(){
         datalabels: false,
       },
       scales:{
-        x:{stacked:true,ticks:{font:{size:11},color:'#9c8a74'},grid:{display:false}},
-        y:{stacked:true,ticks:{font:{size:10},color:'#9c8a74',callback:v=>v+' เครื่อง'},grid:{color:'#f5ede0'}}
+        x:{stacked:true,ticks:{font:{size:11},color:'#9c8a74',maxRotation:45},grid:{display:false}},
+        y:{stacked:true,min:0,ticks:{font:{size:10},color:'#9c8a74',callback:v=>v+' เครื่อง'},grid:{color:'#f5ede0'}}
       }
     },
     plugins:[{
@@ -2834,8 +2834,9 @@ function buildGraphs(){
         const ctx=chart.ctx;
         const meta0 = chart.getDatasetMeta(0);
         fabNames.forEach((fab,i)=>{
-          const done = FAB_TOTALS[fab] ? (FAB_TOTALS[fab].sw+FAB_TOTALS[fab].ap+FAB_TOTALS[fab].inf) : 0;
-          const plan = FAB_PLAN_TOTALS[fab] || 0;
+          const fabObj2 = FABRICS.find(f=>f.n===fab)||{d:0,t:0};
+          const done = fabObj2.d||0;
+          const plan = fabObj2.t||0;
           const pct  = plan>0 ? Math.round(done/plan*100) : 0;
           const bar  = meta0.data[i];
           if(!bar) return;
@@ -2866,7 +2867,6 @@ function buildGraphs(){
   wrap.innerHTML = '';
   // Track all chart builds for export
   window._fabChartPromises = [];
-  Object.keys(FAB_DAILY).length ? Object.keys(FAB_DAILY) : FABRICS.map(f=>f.n);
   // iterate FABRICS ทั้งหมด (ไม่จำกัดแค่ FAB_DAILY)
   FABRICS.forEach(fabObj => {
     const fab = fabObj.n;
