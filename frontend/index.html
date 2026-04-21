@@ -1181,7 +1181,7 @@ main { padding: 12px 10px; }
       สรุปจำนวนติดตั้งแล้ว แยกตามสถานที่
       <span style="margin-left:8px;font-size:11px;font-weight:400;color:var(--text2)">
         ติดตั้งแล้ว <strong style="color:var(--primary)" id="plan-installed-n">–</strong> จากทั้งหมด <strong id="plan-total-n">–</strong> เครื่อง
-        <span style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#fbeade;color:var(--primary);font-size:10px;font-weight:600">รวม 28%</span>
+        <span id="plan-all-pct-badge" style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#fbeade;color:var(--primary);font-size:10px;font-weight:600">รวม –%</span>
       </span>
     </div>
     <div style="height:220px"><canvas id="fab-total-bar-c"></canvas></div>
@@ -2763,19 +2763,13 @@ function buildGraphs(){
     }).join('');
   }
 
-  // ── Summary bar: total done per fabric ──
-  const fabNames = Object.keys(FAB_TOTALS);
-  const fabSwTotals  = fabNames.map(f => FAB_TOTALS[f].sw);
-  const fabApTotals  = fabNames.map(f => FAB_TOTALS[f].ap);
-  const fabInfTotals = fabNames.map(f => FAB_TOTALS[f].inf);
-  // Plan total per fabric
-  const fabPlanTotals = fabNames.map(f => FAB_PLAN_TOTALS[f] || 0);
-  // Labels with done/plan counts
-  const fabLabelsWithCount = fabNames.map(f => {
-    const done = (FAB_TOTALS[f].sw + FAB_TOTALS[f].ap + FAB_TOTALS[f].inf);
-    const plan = FAB_PLAN_TOTALS[f] || 0;
-    return f;
-  });
+  // ── Summary bar: total done per fabric — ใช้ FABRICS ที่มีข้อมูลครบ ──
+  const fabNames = FABRICS.map(f=>f.n);
+  const fabSwTotals  = FABRICS.map(f => f.sw.d||0);
+  const fabApTotals  = FABRICS.map(f => f.ap.d||0);
+  const fabInfTotals = FABRICS.map(f => f.inf.d||0);
+  const fabPlanTotals = FABRICS.map(f => f.t||0);
+  const fabLabelsWithCount = fabNames.slice();
 
   new Chart(document.getElementById('fab-total-bar-c'), {
     type: 'bar',
@@ -2813,9 +2807,10 @@ function buildGraphs(){
           padding:10,cornerRadius:8,
           callbacks:{
             afterTitle:(items)=>{
-              const fab = items[0].label;
-              const done = FAB_TOTALS[fab] ? (FAB_TOTALS[fab].sw+FAB_TOTALS[fab].ap+FAB_TOTALS[fab].inf) : 0;
-              const plan = FAB_PLAN_TOTALS[fab] || 0;
+              const fabName = items[0].label;
+              const fabObj = FABRICS.find(f=>f.n===fabName)||{d:0,t:0};
+              const done = fabObj.d||0;
+              const plan = fabObj.t||0;
               const pct  = plan>0 ? Math.round(done/plan*100) : 0;
               return `ติดตั้งแล้ว ${done}/${plan} (${pct}%)`;
             },
@@ -3462,6 +3457,7 @@ async function loadData(){
     if(_e('ov-all'))    _e('ov-all').textContent    = `${meta.installed}/${meta.total}`;
     if(_e('plan-installed-n')) _e('plan-installed-n').textContent = meta.installed.toLocaleString();
     if(_e('plan-total-n'))     _e('plan-total-n').textContent     = meta.total.toLocaleString();
+    if(_e('plan-all-pct-badge')) _e('plan-all-pct-badge').textContent = 'รวม '+allPct+'%';
     if(_e('ov-sw'))     _e('ov-sw').textContent     = `${sw}/${swT}`;
     if(_e('ov-ap'))     _e('ov-ap').textContent     = `${ap}/${apT}`;
     if(_e('ov-inf'))    _e('ov-inf').textContent    = `${inf}/${infT}`;
