@@ -2502,12 +2502,16 @@ function buildOneFabChart(fab) {
   if(!fd) return;
   const fabColor = FAB_COLORS[fab] || '#b8593a';
   const hasData = fd.sw.some(v=>v>0) || fd.ap.some(v=>v>0) || fd.inf.some(v=>v>0);
-  if(!hasData) return;
   const ctx = document.getElementById('fd-' + fab.replace(/-/g,'') + '-c');
   if (!ctx) return;
   const existingCh = Chart.getChart(ctx);
   if (existingCh) existingCh.destroy();
-  const planData = FAB_DAILY_PLAN[fab] || DAILY_L.map(()=>0);
+  // plan line: ใช้ sw_plan จาก DAILY_FAB_PROG (cumulative %) × siteTotal เป็นจำนวนเครื่อง
+  const _fabProgData = DAILY_FAB_PROG[fab];
+  const _siteTotal = fabObj.t || 1;
+  const planData = _fabProgData && _fabProgData.sw_plan && _fabProgData.sw_plan.length
+    ? _fabProgData.sw_plan.map(p => Math.round(p/100*_siteTotal))
+    : DAILY_L.map(()=>0);
   new Chart(ctx, {
     type: 'bar',
     data: {
@@ -2875,8 +2879,8 @@ function buildGraphs(){
 
     // skip ถ้า fd ไม่มี sw arrays
     if(!fd || !fd.sw || !Array.isArray(fd.sw)) return;
-    // Only build chart if has any installs
-    const hasData = fd.sw.some(v=>v>0) || (fd.ap||[]).some(v=>v>0) || (fd.inf||[]).some(v=>v>0);
+    // แสดงทุก site ถ้ามี plan หรือ actual
+    const hasData = true; // แสดงเสมอ
 
     const div = document.createElement('div');
     div.className = 'card';
