@@ -2507,68 +2507,42 @@ function buildOneFabChart(fab) {
   if (!ctx) return;
   const existingCh = Chart.getChart(ctx);
   if (existingCh) existingCh.destroy();
-  // plan line: ใช้ sw_plan จาก DAILY_FAB_PROG (cumulative %) × siteTotal เป็นจำนวนเครื่อง
-  const _fabProgData = DAILY_FAB_PROG[fab];
-  const _siteTotal = fabObj.t || 1;
-  const planData = _fabProgData && _fabProgData.sw_plan && _fabProgData.sw_plan.length
-    ? _fabProgData.sw_plan.map(p => Math.round(p/100*_siteTotal))
-    : DAILY_L.map(()=>0);
+  // ใช้ sw_plan/sw_act จาก DAILY_FAB_PROG (cumulative %)
+  const _fabProg = DAILY_FAB_PROG[fab];
+  const _swPlan = (_fabProg && _fabProg.sw_plan && _fabProg.sw_plan.length) ? _fabProg.sw_plan : DAILY_PROG_LABELS.map(()=>0);
+  const _swAct  = (_fabProg && _fabProg.sw_act  && _fabProg.sw_act.length)  ? _fabProg.sw_act  : DAILY_PROG_LABELS.map(()=>null);
+  const lastIdx = _swAct.reduce((a,v,j)=>v!=null?j:a,-1);
   new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
-      labels: DAILY_L,
+      labels: DAILY_PROG_LABELS,
       datasets: [
-    {label:'Switch', data:fd.sw,  backgroundColor:'#b8593a', borderRadius:3, stack:'s', order:2},
-    {label:'AP',     data:fd.ap,  backgroundColor:'#7a8f4c', borderRadius:3, stack:'s', order:2},
-    {label:'Infra',  data:fd.inf, backgroundColor:'#c08a2e', borderRadius:3, stack:'s', order:2},
-    {
-      label:'เป้าตามแผน',
-      data: planData,
-      type:'line',
-      borderColor: fabColor,
-      borderWidth: 1.5,
-      borderDash: [4,3],
-      pointRadius: 3,
-      pointBackgroundColor: '#fff',
-      pointBorderColor: fabColor,
-      pointBorderWidth: 1.5,
-      fill: false,
-      tension: 0,
-      order: 1,
-      stack: undefined,
-    }
+        {label:'SW แผน', data:_swPlan, borderColor:fabColor, borderDash:[5,3],
+         borderWidth:1.5, pointRadius:(c)=>c.dataIndex===lastIdx?3:0,
+         pointBackgroundColor:fabColor, tension:0.3, fill:false, spanGaps:true},
+        {label:'SW จริง', data:_swAct, borderColor:'#b8593a', borderWidth:2,
+         pointRadius:(c)=>c.dataIndex===lastIdx?4:0,
+         pointBackgroundColor:'#b8593a', tension:0.3, fill:false, spanGaps:false},
       ]
     },
     options: {
       responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:24,right:48,bottom:10}},
       interaction:{mode:'index',intersect:false},
       plugins:{
-    legend:{display:false},
-    tooltip:{
-      backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
-      bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
-      callbacks:{
-        title:(items)=>items[0].label,
-        label:(c)=>{
-      if(c.dataset.label==='เป้าตามแผน') return c.parsed.y>0?` เป้าแผน: ${c.parsed.y} เครื่อง`:'';
-      return c.parsed.y>0?` ${c.dataset.label}: ${c.parsed.y} เครื่อง`:'';
-        },
-        afterBody:(items)=>{
-      const actual = items.filter(i=>i.dataset.label!=='เป้าตามแผน').reduce((a,i)=>a+i.parsed.y,0);
-      const plan   = items.find(i=>i.dataset.label==='เป้าตามแผน')?.parsed.y||0;
-      const lines = [];
-      if(actual>0) lines.push(`ทำได้: ${actual} เครื่อง`);
-      if(plan>0)   lines.push(`เป้า:  ${plan} เครื่อง`);
-      if(actual>0&&plan>0) lines.push(`${actual>=plan?'✓ ตามแผน':'▼ ต่ำกว่าแผน'} (${Math.round(actual/plan*100)}%)`);
-      return lines;
+        legend:{display:false},
+        tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
+          bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8,
+          callbacks:{
+            title:items=>DAILY_PROG_LABELS[items[0].dataIndex]||'',
+            label:c=>c.parsed.y!=null?` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}%`:null
+          }
         }
-      }
-    }
       },
       scales:{
-    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
-       autoSkip:true,maxTicksLimit:8},grid:{display:false}},
-    y:{stacked:true,ticks:{font:{size:9},color:'#9c8a74',callback:v=>v>0?v:''},grid:{color:'#f5ede0'},min:0}
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
+             callback:(v,i)=>i%7===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
+        y:{min:0,max:100,ticks:{font:{size:10},color:'#9c8a74',stepSize:10,callback:v=>v+'%'},grid:{color:'#f5ede0'}}
       }
     }
   });
@@ -2912,10 +2886,8 @@ function buildGraphs(){
       </div>
       ${chartHtml}
       <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#b8593a;display:inline-block"></span>Switch</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#7a8f4c;display:inline-block"></span>AP</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#c08a2e;display:inline-block"></span>Infra</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed ${fabColor};display:inline-block"></span>เป้าตามแผน</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed ${fabColor};display:inline-block"></span>SW แผน</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;border-radius:2px;background:#b8593a;display:inline-block"></span>SW จริง</span>
       </div>`;
     wrap.appendChild(div);
 
