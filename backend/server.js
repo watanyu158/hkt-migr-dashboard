@@ -284,6 +284,7 @@ function parseData() {
       n, t:v.total, d:v.done, p:Math.round(v.done/v.total*1000)/10,
       h:0, r:v.total-v.done, c:COLORS[i%COLORS.length], s:'–', e:'–',
       sw:{t:swInfSiteMap[n]?.sw_t||0, d:swInfSiteMap[n]?.sw_d||0},
+      ap:{t:0, d:0},
       inf:{t:swInfSiteMap[n]?.inf_t||0, d:swInfSiteMap[n]?.inf_d||0},
     }));
 

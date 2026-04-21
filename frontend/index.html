@@ -778,7 +778,7 @@ main { padding: 12px 10px; }
     </div>
   </div>
   <div class="tb-stats">
-    <div class="tb-stat"><div class="v" id="ts-done">–/1592</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">–</span>)</div></div>
+    <div class="tb-stat"><div class="v" id="ts-done">–/–</div><div class="l">ติดตั้งแล้ว (<span id="tb-pct">–</span>)</div></div>
     <div class="tb-div"></div>
     <div class="tb-stat"><div class="v" id="tb-rate">–</div><div class="l">อุปกรณ์/วัน</div></div>
     <div class="tb-div"></div>
@@ -941,7 +941,7 @@ main { padding: 12px 10px; }
 <!-- ════ TAB: ภาพรวม ════ -->
 <div class="tab-body" id="tab-overview">
   <div class="g4" style="margin-bottom:14px">
-    <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">–/1592</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (<span id="ov-all-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)" id="ov-all-badge">–</div></div>
+    <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">–/–</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (<span id="ov-all-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)" id="ov-all-badge">–</div></div>
     <div class="scard sw"><div class="sl" style="color:#b8593a">🔀 Switch</div><div class="sn" id="ov-sw">–/–</div><div class="ss">Switch ที่ติดตั้งแล้ว (<span id="ov-sw-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#b8593a" id="ov-sw-badge">–</div></div>
     <div class="scard ap"><div class="sl" style="color:#556b35">📶 AP</div><div class="sn" id="ov-ap">–/–</div><div class="ss">AP ที่ติดตั้งแล้ว (<span id="ov-ap-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--success-l);color:#556b35" id="ov-ap-badge">–</div></div>
     <div class="scard inf"><div class="sl" style="color:#8f3f26">⚡ Infra</div><div class="sn" id="ov-inf">–/–</div><div class="ss">Infra ที่ติดตั้งแล้ว (<span id="ov-inf-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#8f3f26" id="ov-inf-badge">–</div></div>
@@ -1180,7 +1180,7 @@ main { padding: 12px 10px; }
       <div class="chi" style="background:#fbeade;color:var(--primary)">📊</div>
       สรุปจำนวนติดตั้งแล้ว แยกตามสถานที่
       <span style="margin-left:8px;font-size:11px;font-weight:400;color:var(--text2)">
-        ติดตั้งแล้ว <strong style="color:var(--primary)">441</strong> จากทั้งหมด <strong>1,592</strong> เครื่อง
+        ติดตั้งแล้ว <strong style="color:var(--primary)" id="plan-installed-n">–</strong> จากทั้งหมด <strong id="plan-total-n">–</strong> เครื่อง
         <span style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#fbeade;color:var(--primary);font-size:10px;font-weight:600">รวม 28%</span>
       </span>
     </div>
@@ -3091,7 +3091,7 @@ function buildFabBreakdown(){
   tbody.innerHTML=''; tfoot.innerHTML='';
 
   // HKT ใช้ SITES (total/done รวม) แทน FABRICS ที่แยก SW/AP/Infra
-  const useSites = SITES.length > 0 && FABRICS.every(f=>f.sw.t===0&&f.ap.t===0&&f.inf.t===0);
+  const useSites = false; // HKT ใช้ FABRICS เสมอ ไม่ใช้ SITES
   const COLORS=['#b8593a','#7a8f4c','#c08a2e','#8b6f47','#6b8599','#c08a2e','#c4a885'];
 
   const rows = useSites ? SITES.map((s,i) => {
@@ -3459,6 +3459,8 @@ async function loadData(){
     const apPct=(ap/apT*100).toFixed(1);
     const infPct=(inf/infT*100).toFixed(1);
     if(_e('ov-all'))    _e('ov-all').textContent    = `${meta.installed}/${meta.total}`;
+    if(_e('plan-installed-n')) _e('plan-installed-n').textContent = meta.installed.toLocaleString();
+    if(_e('plan-total-n'))     _e('plan-total-n').textContent     = meta.total.toLocaleString();
     if(_e('ov-sw'))     _e('ov-sw').textContent     = `${sw}/${swT}`;
     if(_e('ov-ap'))     _e('ov-ap').textContent     = `${ap}/${apT}`;
     if(_e('ov-inf'))    _e('ov-inf').textContent    = `${inf}/${infT}`;
