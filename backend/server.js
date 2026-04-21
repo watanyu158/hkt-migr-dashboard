@@ -229,6 +229,8 @@ function parseData() {
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
     wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
+  // Force สุดท้ายของ bd_plan = 0 (คำนวณแบบ plan end ทุกงานต้องจบ)
+  if (wkBdPlan.length > 0) wkBdPlan[wkBdPlan.length-1] = 0;
 
   // ── insight ──
   const daysToFinish = elapsed > 0 ? elapsed : 1;
