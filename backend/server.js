@@ -354,8 +354,13 @@ function parseData() {
       finish_date:finishDate,
       pct_more:dailyRate>0?Math.round((reqRate/dailyRate-1)*100):0,
     },
+    daily:{
+      labels:dailyLabels, sw:[], ap:[], inf:[], plan:[],
+      cum_d:[], cum_sw:[], cum_ap:[], cum_inf:[]
+    },
     weekly:{
       labels:wkLabels, plan_all:planPct, act_all:actPct,
+      plan_sw:planPct, act_sw:actPct, plan_ap:planPct, act_ap:actPct,
       bd_plan:wkBdPlan, bd_act:wkBdAct,
     },
     daily_progress:{
@@ -393,6 +398,24 @@ function parseData() {
         return fab;
       })(),
     },
+    fab_colors:{},
+    fab_plan_totals:{},
+    fab_totals: Object.fromEntries(
+      Object.entries(swInfSiteMap).map(([k,v])=>[k, v.sw_t+v.inf_t])
+    ),
+    fab_weekly:{},
+    fab_daily_plan: (()=>{
+      const fdp={};
+      Object.keys(swInfSiteMap).forEach(site=>{
+        fdp[site]={};
+        const planByDate=(dayPlanBySite[site]||{}).byDate||{};
+        dailyLabels.forEach(lbl=>{
+          const[dd,mm]=lbl.split('/'); const k=`2026-${mm}-${dd}`;
+          if(planByDate[k]) fdp[site][lbl]=planByDate[k];
+        });
+      });
+      return fdp;
+    })(),
     fab_daily: (()=>{
       const fd={};
       Object.keys(dayActBySite).forEach(site=>{
