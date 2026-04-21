@@ -2873,21 +2873,22 @@ function buildGraphs(){
   window._fabChartPromises = [];
   Object.keys(FAB_DAILY).forEach(fab => {
     const fd = FAB_DAILY[fab];
-    const fabColor = FAB_COLORS[fab];
-    // FAB_TOTALS อาจเป็น number หรือ object
-    const _ft = FAB_TOTALS[fab];
-    const total = typeof _ft==='number' ? _ft :
-                  (_ft ? (_ft.sw||0)+(_ft.ap||0)+(_ft.inf||0) : 0);
+    // ดึงข้อมูล SW/AP/Infra จาก FABRICS
+    const fabObj = FABRICS.find(f=>f.n===fab)||{sw:{t:0,d:0},ap:{t:0,d:0},inf:{t:0,d:0},d:0,t:0};
+    const fabColor = FAB_COLORS[fab] || fabObj.c || '#b8593a';
 
-    // skip ถ้า fd ไม่มี sw/ap/inf arrays (HKT format ต่างกัน)
+    // skip ถ้า fd ไม่มี sw/ap/inf arrays
     if(!fd || !fd.sw || !Array.isArray(fd.sw)) return;
     // Only build chart if has any installs
     const hasData = fd.sw.some(v=>v>0) || (fd.ap||[]).some(v=>v>0) || (fd.inf||[]).some(v=>v>0);
 
     const div = document.createElement('div');
     div.className = 'card';
-    const fabDoneTotal = FAB_TOTALS[fab].sw + FAB_TOTALS[fab].ap + FAB_TOTALS[fab].inf;
-    const fabPlanTotal = FAB_PLAN_TOTALS[fab] || 0;
+    const fabDoneTotal = fabObj.d || 0;
+    const fabPlanTotal = fabObj.t || 0;
+    const fabSwT = fabObj.sw.t||0; const fabSwD = fabObj.sw.d||0;
+    const fabApT = fabObj.ap.t||0; const fabApD = fabObj.ap.d||0;
+    const fabInfT= fabObj.inf.t||0; const fabInfD= fabObj.inf.d||0;
     const fabPct = fabPlanTotal>0 ? Math.round(fabDoneTotal/fabPlanTotal*100) : 0;
     const fabPctColor = fabPct>=80?'#556b35':fabPct>=30?'#8f3f26':'#b8593a';
     const fabPctBg    = fabPct>=80?'#ecfdf5':fabPct>=30?'#faefd4':'#fbeade';
@@ -2899,7 +2900,7 @@ function buildGraphs(){
       <div class="ch" style="margin-bottom:10px;flex-wrap:wrap;gap:6px">
         <div style="width:10px;height:10px;border-radius:50%;background:${fabColor};flex-shrink:0"></div>
         <span style="font-size:13px;font-weight:700">${fab}</span>
-        <span style="font-size:11px;color:var(--text2)">SW:${FAB_TOTALS[fab].sw} / AP:${FAB_TOTALS[fab].ap} / Infra:${FAB_TOTALS[fab].inf}</span>
+        <span style="font-size:11px;color:var(--text2)">SW:${fabSwD}/${fabSwT} / AP:${fabApD}/${fabApT} / Infra:${fabInfD}/${fabInfT}</span>
         <span style="margin-left:auto;display:flex;align-items:center;gap:6px">
           <span style="font-size:12px;color:var(--text2)">
             ติดตั้งแล้ว <strong style="color:var(--text)">${fabDoneTotal}</strong> จาก <strong>${fabPlanTotal}</strong> เครื่อง
