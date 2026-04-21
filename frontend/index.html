@@ -1118,21 +1118,21 @@ main { padding: 12px 10px; }
 
 <!-- ════ TAB: กราฟ ════ -->
 <div class="tab-body" id="tab-graphs" style="display:none">
-  <div class="g2" style="margin-bottom:14px">
+  <div style="margin-bottom:14px">
     <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">🍩</div>สัดส่วนประเภทอุปกรณ์</div>
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
         <div style="position:relative;width:150px;height:150px;flex-shrink:0"><canvas id="type-c"></canvas>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-size:16px;font-weight:700"><span id="type-donut-pct">–</span></div><div style="font-size:10px;color:var(--text2)">รวม</div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;flex:1;font-size:12px;color:var(--text2)">
-          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block"></span>Switch 70%</span><span style="font-weight:600">1,121</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--success);display:inline-block"></span>AP 28%</span><span style="font-weight:600">445</span></div>
-          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--warning);display:inline-block"></span>Infra 2%</span><span style="font-weight:600">26</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--primary);display:inline-block"></span><span id="td-sw-lbl">Switch –</span></span><span style="font-weight:600" id="td-sw-n">–</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--success);display:inline-block"></span><span id="td-ap-lbl">AP –</span></span><span style="font-weight:600" id="td-ap-n">–</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:var(--warning);display:inline-block"></span><span id="td-inf-lbl">Infra –</span></span><span style="font-weight:600" id="td-inf-n">–</span></div>
         </div>
       </div>
     </div>
-    <div class="card"><div class="ch"><div class="chi" style="background:var(--success-l);color:var(--success)">📊</div>แผนภูมิ Fabric</div><div style="height:175px"><canvas id="fab-bar-c"></canvas></div></div>
   </div>
+  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--success-l);color:var(--success)">📊</div>แผนภูมิ Fabric — แยกตามสถานที่</div><div style="height:400px"><canvas id="fab-bar-c"></canvas></div></div>
   <div class="card" style="margin-bottom:14px">
     <div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">📊</div>แยกตามประเภทอุปกรณ์ — แผน vs ติดตั้งแล้ว</div>
     <div style="height:460px"><canvas id="type-bar-c"></canvas></div>
@@ -3470,6 +3470,17 @@ async function loadData(){
     if(_e('ov-ap-badge'))  _e('ov-ap-badge').textContent  = apPct+'%';
     if(_e('ov-inf-badge')) _e('ov-inf-badge').textContent = infPct+'%';
     if(_e('type-donut-pct')) _e('type-donut-pct').textContent = allPct+'%';
+    // สัดส่วนประเภทอุปกรณ์ — Switch/AP/Infra
+    const _totalDev = swT + apT + infT;
+    const _swPctTotal  = _totalDev>0 ? Math.round(swT/_totalDev*100) : 0;
+    const _apPctTotal  = _totalDev>0 ? Math.round(apT/_totalDev*100) : 0;
+    const _infPctTotal = _totalDev>0 ? Math.round(infT/_totalDev*100) : 0;
+    if(_e('td-sw-lbl'))  _e('td-sw-lbl').textContent  = 'Switch '+_swPctTotal+'%';
+    if(_e('td-ap-lbl'))  _e('td-ap-lbl').textContent  = 'AP '+_apPctTotal+'%';
+    if(_e('td-inf-lbl')) _e('td-inf-lbl').textContent = 'Infra '+_infPctTotal+'%';
+    if(_e('td-sw-n'))    _e('td-sw-n').textContent    = swT.toLocaleString();
+    if(_e('td-ap-n'))    _e('td-ap-n').textContent    = apT.toLocaleString();
+    if(_e('td-inf-n'))   _e('td-inf-n').textContent   = infT.toLocaleString();
     // Tab แผนงาน
     const effPct = ins.req_rate>0 ? Math.round(ins.daily_rate/ins.req_rate*100) : 0;
     if(_e('plan-req-rate'))  _e('plan-req-rate').textContent  = ins.req_rate+' อุปกรณ์/วัน';

@@ -237,8 +237,11 @@ function parseData() {
   const needMore    = Math.round((reqRate - dailyRate)*10)/10;
   const gaugePct    = pctDone;
   const daysLate    = daysLeft < 0 ? Math.abs(daysLeft) : 0;
-  const daysEarly   = daysLeft > 0 ? 0 : 0;
-  const finishDate  = dailyRate > 0 ? new Date(today.getTime() + Math.ceil(remaining/dailyRate)*86400000).toISOString().slice(0,10) : null;
+  const finishDateObj = dailyRate > 0 ? new Date(today.getTime() + Math.ceil(remaining/dailyRate)*86400000) : null;
+  const finishDate  = finishDateObj ? finishDateObj.toISOString().slice(0,10) : null;
+  // daysEarly: บวก = ก่อนกำหนด, ลบ = ช้ากว่ากำหนด
+  const daysEarly   = finishDateObj ? Math.round((PROJ_END - finishDateObj) / 86400000) : 0;
+  const daysLateAdj = daysEarly < 0 ? Math.abs(daysEarly) : 0;
 
   // ── fabrics / sites ──
   const COLORS = ['#f97316','#0ea5e9','#10b981','#a855f7','#f43f5e','#eab308','#06b6d4'];
@@ -315,7 +318,7 @@ function parseData() {
     insight:{
       daily_rate:dailyRate, req_rate:reqRate, need_more:needMore,
       gauge_pct:gaugePct, elapsed, remaining,
-      days_left:daysLeft, days_late:daysLate, days_early:daysEarly,
+      days_left:daysLeft, days_late:daysLateAdj, days_early:Math.max(0,daysEarly),
       finish_date:finishDate,
       pct_more:dailyRate>0?Math.round((reqRate/dailyRate-1)*100):0,
     },
