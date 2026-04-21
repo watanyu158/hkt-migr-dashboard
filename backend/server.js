@@ -393,6 +393,18 @@ function parseData() {
         return fab;
       })(),
     },
+    fab_daily: (()=>{
+      const fd={};
+      Object.keys(dayActBySite).forEach(site=>{
+        fd[site]={};
+        const byDate=dayActBySite[site];
+        dailyLabels.forEach(lbl=>{
+          const[dd,mm]=lbl.split('/'); const k=`2026-${mm}-${dd}`;
+          if(byDate[k]) fd[site][lbl]=byDate[k];
+        });
+      });
+      return fd;
+    })(),
     fabrics, sites:fabrics, sw_inf_sites:swInfSites, ap_sites:apSites,
     types, hold_items:[],
   };
