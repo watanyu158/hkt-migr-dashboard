@@ -2500,7 +2500,8 @@ function buildProgressCharts(){
 function buildOneFabChart(fab) {
   const fd = FAB_DAILY[fab];
   if(!fd) return;
-  const fabColor = FAB_COLORS[fab] || '#b8593a';
+  const fabObj = FABRICS.find(f=>f.n===fab)||{t:0,d:0,sw:{t:0,d:0},ap:{t:0,d:0},inf:{t:0,d:0}};
+  const fabColor = FAB_COLORS[fab] || fabObj.c || '#b8593a';
   const hasData = fd.sw.some(v=>v>0) || fd.ap.some(v=>v>0) || fd.inf.some(v=>v>0);
   const ctx = document.getElementById('fd-' + fab.replace(/-/g,'') + '-c');
   if (!ctx) return;
