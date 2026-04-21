@@ -190,10 +190,12 @@ function parseData() {
   const dailySwActCum = [], dailyApActCum = [];
   let cumSwAct = 0, cumApAct = 0;
 
-  dailyLabels.forEach(lbl => {
+  const nDays = dailyLabels.length;
+  dailyLabels.forEach((lbl, di) => {
     const [dd,mm] = lbl.split('/');
     const k = `2026-${mm}-${dd}`;
-    bdPlan.push(TOTAL - cumPlan);
+    // linear burndown plan: TOTAL → 0
+    bdPlan.push(Math.round(TOTAL * (1 - di / Math.max(nDays-1, 1))));
     bdAct.push(lastActDt && new Date(k+'T00:00:00') <= lastActDt ? TOTAL - cumAct : null);
     cumPlan += dayPlanMap[k]||0;
     cumAct  += dayActMap[k]||0;
