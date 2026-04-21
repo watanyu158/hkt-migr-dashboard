@@ -247,8 +247,10 @@ function parseData() {
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
     wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
-  // Force ค่าสุดท้าย = 0
-  if (wkBdPlan.length > 0) wkBdPlan[wkBdPlan.length-1] = 0;
+  // สร้าง bd_plan ใหม่ linear จาก TOTAL → 0
+  for (let i = 0; i < wkBdPlan.length; i++) {
+    wkBdPlan[i] = Math.round(TOTAL * (1 - i/(wkBdPlan.length-1)));
+  }
 
   // ── insight ──
   const daysToFinish = elapsed > 0 ? elapsed : 1;
