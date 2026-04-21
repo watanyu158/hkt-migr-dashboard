@@ -7,31 +7,56 @@
 <title>HKT SAT Migration Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f0f4ff;--card:#fff;--border:#e8edf5;
-  --primary:#ea6c1a;--primary-l:#eef1ff;--primary-m:#7b93f5;
-  --success:#2bc48a;--success-l:#e6faf3;
-  --warning:#ff9f43;--warning-l:#fff5e6;
-  --danger:#ee4b4b;--danger-l:#fff0f0;
-  --hold:#a855f7;--hold-l:#f5f0ff;
-  --info:#22b8cf;--info-l:#e6f9fb;
-  --text:#1e2d4d;--text2:#5a6a8a;--text3:#94a3c4;
-  --r:14px;--rsm:10px;
-  --sh:0 2px 12px rgba(67,97,238,.07);
-  --shlg:0 8px 28px rgba(67,97,238,.12);
+  /* Warm Terracotta Theme — น้ำตาลอบอุ่น tone สว่าง */
+  --bg:#faf6ef;                /* cream ivory */
+  --bg-2:#f5ede0;              /* warm sand */
+  --card:#fffdf8;              /* off-white warm */
+  --border:#e8dcc7;            /* warm tan border */
+  --border-l:#f0e5d3;          /* lighter tan */
+
+  /* Primary — Terracotta/Sienna */
+  --primary:#b8593a;            /* deep terracotta */
+  --primary-l:#fbeade;          /* pale peach */
+  --primary-m:#d98967;           /* clay medium */
+  --primary-d:#8f3f26;           /* burnt sienna */
+
+  /* Status colors — all warm-shifted */
+  --success:#7a8f4c;              /* sage olive */
+  --success-l:#edf0e0;            /* pale sage */
+  --warning:#c08a2e;              /* mustard gold */
+  --warning-l:#faefd4;            /* cream gold */
+  --danger:#a8452e;                /* brick red */
+  --danger-l:#f8e1d8;              /* pale rose */
+  --hold:#8b6f47;                  /* taupe brown */
+  --hold-l:#efe7d9;                /* sand */
+  --info:#6b8599;                  /* dusty blue (แต่ warm) */
+  --info-l:#e2e8ec;
+
+  /* Text — warm brown hierarchy */
+  --text:#3d2817;                  /* dark coffee */
+  --text2:#6b5744;                 /* medium walnut */
+  --text3:#9c8a74;                 /* light tan */
+
+  --r:10px;--rsm:8px;
+  --sh:0 1px 3px rgba(90,50,20,.08),0 2px 10px rgba(90,50,20,.05);
+  --shlg:0 4px 16px rgba(90,50,20,.10),0 12px 32px rgba(90,50,20,.08);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
+body{font-family:'IBM Plex Sans Thai','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased;background-image:radial-gradient(circle at 20% 10%,rgba(217,137,103,.04) 0,transparent 40%),radial-gradient(circle at 80% 90%,rgba(184,89,58,.03) 0,transparent 40%);background-attachment:fixed}
 
 /* TOPBAR */
-.topbar{background:linear-gradient(135deg,#3a56e4,#6c4de4);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 20px rgba(67,97,238,.3)}
+.topbar{background:linear-gradient(135deg,#8f3f26 0%,#b8593a 50%,#d98967 100%);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 4px 20px rgba(90,50,20,.25)}
 .tb-l{display:flex;align-items:center;gap:10px}
 .tb-logo{width:30px;height:30px;background:rgba(255,255,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
 .tb-title{font-size:14px;font-weight:600}
 .tb-sub{font-size:10px;opacity:.7}
 .sdot-wrap{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:4px}
-.sdot{width:7px;height:7px;border-radius:50%;background:#2bc48a;animation:pulse 2s infinite}
+.sdot{width:7px;height:7px;border-radius:50%;background:#7a8f4c;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(43,196,138,.3)}50%{box-shadow:0 0 0 5px rgba(43,196,138,.1)}}
 .tb-stats{display:flex;gap:14px}
 .tb-stat .v{font-size:14px;font-weight:700;line-height:1}
@@ -50,11 +75,11 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--t
 /* LEFT: alert card */
 .ins-alert-card{flex:1;min-width:0;background:#fff;border:1px solid #fed7aa;border-left:4px solid var(--danger);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 .ins-alert-head{display:flex;align-items:flex-start;gap:10px}
-.ins-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#ff9f43,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 3px 10px rgba(255,159,67,.35)}
+.ins-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#c08a2e,#ff6b35);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 3px 10px rgba(255,159,67,.35)}
 .ins-big{font-size:15px;font-weight:700;color:#b45309;line-height:1.3}
-.ins-big em{font-size:22px;font-style:normal;color:#d97706;margin-right:2px}
-.ins-pct-tag{font-size:11px;font-weight:500;color:#92400e;background:#fff7ed;padding:2px 8px;border-radius:99px;margin-left:4px;white-space:nowrap}
-.ins-rate-row{display:flex;align-items:center;gap:8px;background:#f8faff;border-radius:8px;padding:8px 12px;flex-wrap:wrap}
+.ins-big em{font-size:22px;font-style:normal;color:#c08a2e;margin-right:2px}
+.ins-pct-tag{font-size:11px;font-weight:500;color:#8f3f26;background:#fff7ed;padding:2px 8px;border-radius:99px;margin-left:4px;white-space:nowrap}
+.ins-rate-row{display:flex;align-items:center;gap:8px;background:#faf6ef;border-radius:8px;padding:8px 12px;flex-wrap:wrap}
 .ins-rate-lbl{font-size:12px;color:var(--text2)}
 .ins-rate-val{font-size:18px;font-weight:700;color:var(--text)}
 .ins-rate-target{color:var(--danger)}
@@ -104,7 +129,7 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .btn{padding:7px 13px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:12px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:4px;font-family:inherit;transition:.2s;box-shadow:var(--sh)}
 .btn:hover{border-color:var(--primary-m);background:var(--primary-l);color:var(--primary)}
 .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.btn.sync-on{background:var(--success-l);border-color:#a7f3d0;color:#065f46}
+.btn.sync-on{background:var(--success-l);border-color:#a7f3d0;color:#556b35}
 
 /* TABS */
 .tabs-wrap{background:#fff;border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--border);overflow:hidden}
@@ -118,7 +143,7 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.card{background:var(--card);border-radius:var(--rsm);border:1px solid var(--border);padding:15px;box-shadow:var(--sh)}
+.card{background:var(--card);border-radius:var(--rsm);border:1px solid var(--border);padding:15px;box-shadow:var(--sh);transition:transform .2s ease,box-shadow .2s ease}
 .ch{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;margin-bottom:13px}
 .chi{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
 
@@ -126,7 +151,7 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .scard{border-radius:var(--rsm);padding:15px 16px;border:1px solid var(--border);background:#fff;box-shadow:var(--sh);position:relative;overflow:hidden}
 .scard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .scard.all::before{background:linear-gradient(90deg,var(--primary),var(--primary-m))}
-.scard.sw::before{background:linear-gradient(90deg,#ea6c1a,#7b93f5)}
+.scard.sw::before{background:linear-gradient(90deg,#b8593a,#d98967)}
 .scard.ap::before{background:linear-gradient(90deg,var(--success),#52e3aa)}
 .scard.inf::before{background:linear-gradient(90deg,var(--warning),#ffd36b)}
 .scard .sl{font-size:11px;font-weight:500;margin-bottom:5px}
@@ -135,7 +160,7 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .scard .sbar{height:5px;background:var(--border);border-radius:99px;margin-top:9px;overflow:hidden}
 .scard .sf{height:100%;border-radius:99px;transition:width 1s ease}
 .scard.all .sf{background:linear-gradient(90deg,var(--primary),var(--primary-m))}
-.scard.sw  .sf{background:linear-gradient(90deg,#ea6c1a,#7b93f5)}
+.scard.sw  .sf{background:linear-gradient(90deg,#b8593a,#d98967)}
 .scard.ap  .sf{background:linear-gradient(90deg,var(--success),#52e3aa)}
 .scard.inf .sf{background:linear-gradient(90deg,var(--warning),#ffd36b)}
 .scard .sbadge{position:absolute;top:14px;right:14px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
@@ -159,7 +184,7 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .tlt{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;align-items:center}
 .tln{font-weight:600}
 .tlpct{font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px}
-.tltrack{height:17px;background:#eef1ff;border-radius:5px;position:relative}
+.tltrack{height:17px;background:#fbeade;border-radius:5px;position:relative}
 .tlfill{height:100%;border-radius:5px 0 0 5px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:width 1.2s cubic-bezier(.23,1,.32,1)}
 .tltd{position:absolute;top:0;bottom:0;width:2px;border-radius:1px}
 
@@ -170,11 +195,11 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 .hmc .hmn{font-size:11px;font-weight:600;margin-bottom:5px}
 .hmc .hmp{font-size:24px;font-weight:700;line-height:1}
 .hmc .hms{font-size:10px;margin-top:3px}
-.hm0{background:#f5f7fa;color:var(--text3);border-color:#e2e8f0}
-.hmlo{background:#fff8e6;color:#92400e}
-.hmmi{background:#fff2e6;color:#c2410c}
-.hmhi{background:#ecfdf5;color:#065f46}
-.hmfu{background:linear-gradient(135deg,#2bc48a,#0e9e73);color:#fff}
+.hm0{background:#f5f7fa;color:var(--text3);border-color:#e8dcc7}
+.hmlo{background:#fff8e6;color:#8f3f26}
+.hmmi{background:#fff2e6;color:#b8593a}
+.hmhi{background:#ecfdf5;color:#556b35}
+.hmfu{background:linear-gradient(135deg,#7a8f4c,#0e9e73);color:#fff}
 
 /* HOLD */
 .hold-tog{display:flex;align-items:center;justify-content:space-between;background:var(--hold-l);border:1px solid #d8b4fe;border-radius:var(--rsm);padding:10px 15px;cursor:pointer;transition:.2s;user-select:none}
@@ -184,20 +209,20 @@ main{max-width:1360px;margin:0 auto;padding:18px 14px}
 
 /* BADGES */
 .badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600}
-.bs{background:var(--success-l);color:#065f46}
+.bs{background:var(--success-l);color:#556b35}
 .bon{background:var(--primary-l);color:var(--primary)}
 .bho{background:var(--hold-l);color:var(--hold)}
-.bpe{background:#f1f5f9;color:var(--text2)}
+.bpe{background:#f5ede0;color:var(--text2)}
 
 /* TABLE */
 .filters{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
 .filters select,.filters input{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;background:#fff;color:var(--text);outline:none}
 .tblw{overflow-x:auto;border-radius:var(--rsm);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#f8faff;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;text-transform:uppercase;font-weight:600;white-space:nowrap}
+th{background:#faf6ef;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;text-transform:uppercase;font-weight:600;white-space:nowrap}
 td{padding:8px 11px;border-bottom:1px solid var(--border)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#f8faff}
+tr:hover td{background:#faf6ef}
 .pager{display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;font-size:12px;color:var(--text2)}
 .pager button{padding:5px 12px;border:1px solid var(--border);border-radius:7px;background:#fff;cursor:pointer;font-size:12px;font-family:inherit;transition:.2s}
 .pager button:hover:not(:disabled){background:var(--primary-l);border-color:var(--primary-m);color:var(--primary)}
@@ -211,7 +236,7 @@ tr:hover td{background:#f8faff}
 .fgb.open{display:block}
 .locrow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);gap:10px;transition:.2s;border-radius:6px;margin:2px 4px}
 .locrow:last-child{border-bottom:none}
-.locrow:hover{background:#f8faff}
+.locrow:hover{background:#faf6ef}
 .locname{font-size:14px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .loci{text-align:right;flex-shrink:0}
 .locc{font-size:12px;font-weight:700;color:var(--text)}
@@ -229,7 +254,7 @@ tr:hover td{background:#f8faff}
 .fpc-pct{font-size:16px;font-weight:700;padding:3px 10px;border-radius:99px}
 .fpc-big{font-size:24px;font-weight:700;line-height:1}
 .fpc-sub{font-size:11px;color:var(--text2);margin:3px 0 9px}
-.fpc-bar{height:6px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin-bottom:11px}
+.fpc-bar{height:6px;background:#f5ede0;border-radius:99px;overflow:hidden;margin-bottom:11px}
 .fpc-fill{height:100%;border-radius:99px}
 .fpc-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .fcc{background:var(--bg);border-radius:7px;padding:9px}
@@ -255,7 +280,7 @@ tr:hover td{background:#f8faff}
 .fgr input:focus,.fgr select:focus,.fgr textarea:focus{border-color:var(--primary-m)}
 .fgr textarea{height:65px;resize:vertical}
 .falert{padding:9px 13px;border-radius:7px;font-size:13px;margin-bottom:11px;display:flex;align-items:center;gap:7px}
-.fok{background:var(--success-l);color:#065f46;border:1px solid #a7f3d0}
+.fok{background:var(--success-l);color:#556b35;border:1px solid #a7f3d0}
 .ferr{background:var(--danger-l);color:#991b1b;border:1px solid #fecaca}
 .loading{text-align:center;padding:30px;color:var(--text2)}
 
@@ -263,12 +288,12 @@ tr:hover td{background:#f8faff}
 
 /* ── SITE BREAKDOWN TABLE ─────────────────────────────────── */
 .fab-table{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
-.fab-table th{background:#f8faff;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;white-space:nowrap}
+.fab-table th{background:#faf6ef;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;white-space:nowrap}
 .fab-table .sub-head th{background:#f1f5ff;font-size:10px;color:var(--text3);padding:4px 10px;border-bottom:1px solid var(--border)}
 .fab-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
-.fab-table tfoot td{padding:9px 10px;font-weight:600;background:#f8faff;border-top:2px solid var(--border)}
+.fab-table tfoot td{padding:9px 10px;font-weight:600;background:#faf6ef;border-top:2px solid var(--border)}
 .fab-table tr:last-child td{border-bottom:none}
-.fab-table tbody tr:hover td{background:#f8faff}
+.fab-table tbody tr:hover td{background:#faf6ef}
 .fab-name{display:flex;align-items:center;gap:7px;font-weight:600}
 .fab-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .fab-done{font-weight:600;color:var(--text)}
@@ -311,11 +336,11 @@ main { padding: 12px 10px; }
 .fab-bd-pct{font-size:12px;font-weight:700;padding:2px 7px;border-radius:99px}
 .fab-bd-total{font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.3}
 .fab-bd-total strong{font-size:15px;font-weight:700;color:var(--text)}
-.fab-bd-bar{height:4px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin-bottom:8px}
+.fab-bd-bar{height:4px;background:#f5ede0;border-radius:99px;overflow:hidden;margin-bottom:8px}
 .fab-bd-fill{height:100%;border-radius:99px;transition:width 1s ease}
 .fab-bd-cats{display:flex;flex-direction:column;gap:4px}
 .fab-bd-cat{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2)}
-.fab-bd-cat-bar{flex:1;height:3px;background:#f0f4ff;border-radius:99px;overflow:hidden}
+.fab-bd-cat-bar{flex:1;height:3px;background:#f5ede0;border-radius:99px;overflow:hidden}
 .fab-bd-cat-fill{height:100%;border-radius:99px}
 .fab-bd-cat-val{font-size:10px;font-weight:600;min-width:30px;text-align:right;color:var(--text)}
 .fab-bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -641,11 +666,11 @@ main { padding: 12px 10px; }
 .fab-bd-pct{font-size:12px;font-weight:700;padding:2px 7px;border-radius:99px}
 .fab-bd-total{font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.3}
 .fab-bd-total strong{font-size:15px;font-weight:700;color:var(--text)}
-.fab-bd-bar{height:4px;background:#f0f4ff;border-radius:99px;overflow:hidden;margin-bottom:8px}
+.fab-bd-bar{height:4px;background:#f5ede0;border-radius:99px;overflow:hidden;margin-bottom:8px}
 .fab-bd-fill{height:100%;border-radius:99px;transition:width 1s ease}
 .fab-bd-cats{display:flex;flex-direction:column;gap:4px}
 .fab-bd-cat{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2)}
-.fab-bd-cat-bar{flex:1;height:3px;background:#f0f4ff;border-radius:99px;overflow:hidden}
+.fab-bd-cat-bar{flex:1;height:3px;background:#f5ede0;border-radius:99px;overflow:hidden}
 .fab-bd-cat-fill{height:100%;border-radius:99px}
 .fab-bd-cat-val{font-size:10px;font-weight:600;min-width:30px;text-align:right;color:var(--text)}
 .fab-bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
@@ -674,7 +699,7 @@ main { padding: 12px 10px; }
   /* ── Layout ── */
   body { background: #fff !important; }
   main { padding: 0 !important; max-width: 100% !important; }
-  .card { break-inside: avoid; border: 1px solid #e8edf5 !important; }
+  .card { break-inside: avoid; border: 1px solid #e8dcc7 !important; }
   .g2 { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
   .g3 { grid-template-columns: 1fr 1fr 1fr !important; gap: 8px !important; }
   .g4 { grid-template-columns: repeat(4,1fr) !important; gap: 8px !important; }
@@ -722,7 +747,7 @@ main { padding: 12px 10px; }
 }
 .card-progress-bar{
   height:100%;border-radius:99px;
-  background:linear-gradient(90deg,var(--primary),#6c4de4);
+  background:linear-gradient(90deg,var(--primary),#d98967);
   transition:width .25s ease;
 }
 .card-progress-pct{
@@ -759,7 +784,7 @@ main { padding: 12px 10px; }
     <div class="tb-div"></div>
     <div class="tb-stat"><div class="v" id="tb-days">–</div><div class="l">วันเหลือ</div></div>
     <div class="tb-div"></div>
-    <div class="tb-stat"><div class="v" id="tb-over" style="color:#ff9f43">35</div><div class="l">เกินกำหนด</div></div>
+    <div class="tb-stat"><div class="v" id="tb-over" style="color:#c08a2e">35</div><div class="l">เกินกำหนด</div></div>
   </div>
   <div style="display:flex;gap:6px">
     <button class="tbtn" id="auto-sync-btn" onclick="toggleAutoSync()">🔄 ซิงค์อัตโนมัติ</button>
@@ -777,7 +802,7 @@ main { padding: 12px 10px; }
     <!-- LEFT: insight alert card -->
     <div class="ins-alert-card">
       <div class="ins-alert-head">
-        <div class="ins-icon" style="background:linear-gradient(135deg,#ff6b35,#ee4b4b);display:flex;align-items:center;justify-content:center">
+        <div class="ins-icon" style="background:linear-gradient(135deg,#ff6b35,#a8452e);display:flex;align-items:center;justify-content:center">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <!-- Rocket body -->
             <path d="M12 2C12 2 7 6 7 12l5 3 5-3c0-6-5-10-5-10z" fill="rgba(255,255,255,0.3)" stroke="#fff"/>
@@ -917,9 +942,9 @@ main { padding: 12px 10px; }
 <div class="tab-body" id="tab-overview">
   <div class="g4" style="margin-bottom:14px">
     <div class="scard all"><div class="sl" style="color:var(--primary)">🏗 สรุปผลการติดตั้งทั้งหมด</div><div class="sn" id="ov-all">–/1592</div><div class="ss">อุปกรณ์ที่ติดตั้งแล้ว (<span id="ov-all-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-all-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:var(--primary)" id="ov-all-badge">–</div></div>
-    <div class="scard sw"><div class="sl" style="color:#ea6c1a">🔀 Switch</div><div class="sn" id="ov-sw">–/–</div><div class="ss">Switch ที่ติดตั้งแล้ว (<span id="ov-sw-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#ea6c1a" id="ov-sw-badge">–</div></div>
-    <div class="scard ap"><div class="sl" style="color:#065f46">📶 AP</div><div class="sn" id="ov-ap">–/–</div><div class="ss">AP ที่ติดตั้งแล้ว (<span id="ov-ap-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--success-l);color:#065f46" id="ov-ap-badge">–</div></div>
-    <div class="scard inf"><div class="sl" style="color:#92400e">⚡ Infra</div><div class="sn" id="ov-inf">–/–</div><div class="ss">Infra ที่ติดตั้งแล้ว (<span id="ov-inf-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#92400e" id="ov-inf-badge">–</div></div>
+    <div class="scard sw"><div class="sl" style="color:#b8593a">🔀 Switch</div><div class="sn" id="ov-sw">–/–</div><div class="ss">Switch ที่ติดตั้งแล้ว (<span id="ov-sw-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-sw-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--primary-l);color:#b8593a" id="ov-sw-badge">–</div></div>
+    <div class="scard ap"><div class="sl" style="color:#556b35">📶 AP</div><div class="sn" id="ov-ap">–/–</div><div class="ss">AP ที่ติดตั้งแล้ว (<span id="ov-ap-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-ap-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--success-l);color:#556b35" id="ov-ap-badge">–</div></div>
+    <div class="scard inf"><div class="sl" style="color:#8f3f26">⚡ Infra</div><div class="sn" id="ov-inf">–/–</div><div class="ss">Infra ที่ติดตั้งแล้ว (<span id="ov-inf-pct">–</span>)</div><div class="sbar"><div class="sf" id="ov-inf-b" style="width:0%"></div></div><div class="sbadge" style="background:var(--warning-l);color:#8f3f26" id="ov-inf-badge">–</div></div>
   </div>
   <!-- ── Site breakdown table ── -->
 
@@ -1022,7 +1047,7 @@ main { padding: 12px 10px; }
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="display:flex;align-items:center;gap:7px">
-            <span style="width:12px;height:12px;border-radius:3px;background:#e2e8f0;display:inline-block;flex-shrink:0"></span>
+            <span style="width:12px;height:12px;border-radius:3px;background:#e8dcc7;display:inline-block;flex-shrink:0"></span>
             รอดำเนินการ
           </span>
           <span style="font-weight:600;font-size:14px" id="donut-pending-cnt">–</span>
@@ -1030,7 +1055,7 @@ main { padding: 12px 10px; }
       </div>
     </div>
   </div>
-  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📊</div>Site Progress</div><div id="tl-wrap"></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e2e8f0"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)"><span style="display:inline-block;width:2px;height:12px;background:var(--danger);margin-right:4px;vertical-align:middle"></span>วันนี้</div></div></div>
+  <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📊</div>Site Progress</div><div id="tl-wrap"></div><div class="cleg" style="margin-top:11px"><div class="cl"><div class="cll" style="background:var(--primary)"></div>ติดตั้งแล้ว</div><div class="cl"><div class="cll" style="background:#e8dcc7"></div>คงเหลือ</div><div class="cl" style="color:var(--danger)"><span style="display:inline-block;width:2px;height:12px;background:var(--danger);margin-right:4px;vertical-align:middle"></span>วันนี้</div></div></div>
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--hold-l);color:var(--hold)">🗺</div>Site Heatmap</div><div class="heatmap" id="hm-wrap"></div></div>
   <div class="hold-tog" onclick="toggleHold(this)"><div class="hold-lbl">⏸ อุปกรณ์ที่ Hold</div><div style="display:flex;align-items:center;gap:7px"><span class="hold-badge" id="hold-cnt">– รายการ</span><span id="hold-arr" style="color:var(--hold);font-size:12px">▼</span></div></div>
   <div id="hold-body" style="display:none;margin-top:6px"></div>
@@ -1060,14 +1085,14 @@ main { padding: 12px 10px; }
   <!-- SW -->
   <div class="card" style="margin-bottom:14px">
     <div class="ch">
-      <div class="chi" style="background:#eef1ff;color:#ea6c1a">🔀</div>Switch รวม — แผน vs จริง (%)
+      <div class="chi" style="background:#fbeade;color:#b8593a">🔀</div>Switch รวม — แผน vs จริง (%)
       <div style="display:flex;gap:10px;margin-left:auto;font-size:11px;font-weight:400">
         <span id="prog-sw-plan-lbl" style="color:var(--text3)">แผน: –%</span>
-        <span id="prog-sw-act-lbl" style="color:#ea6c1a;font-weight:600">จริง: –%</span>
+        <span id="prog-sw-act-lbl" style="color:#b8593a;font-weight:600">จริง: –%</span>
       </div>
     </div>
     <div style="height:220px"><canvas id="prog-sw-c"></canvas></div>
-    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#ea6c1a"></div>จริง (%)</div></div>
+    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#e8b99b"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#b8593a"></div>จริง (%)</div></div>
   </div>
   <!-- AP -->
   <div class="card" style="margin-bottom:14px">
@@ -1079,7 +1104,7 @@ main { padding: 12px 10px; }
       </div>
     </div>
     <div style="height:220px"><canvas id="prog-ap-c"></canvas></div>
-    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#2bc48a"></div>จริง (%)</div></div>
+    <div class="cleg"><div class="cl"><div class="cld" style="border-color:#c4d9a0"></div>แผน (%)</div><div class="cl"><div class="cll" style="background:#7a8f4c"></div>จริง (%)</div></div>
   </div>
 
   <!-- Per Site charts -->
@@ -1152,19 +1177,19 @@ main { padding: 12px 10px; }
   <!-- Summary bar: done vs plan per fabric -->
   <div class="card" style="margin-bottom:14px">
     <div class="ch">
-      <div class="chi" style="background:#eef1ff;color:var(--primary)">📊</div>
+      <div class="chi" style="background:#fbeade;color:var(--primary)">📊</div>
       สรุปจำนวนติดตั้งแล้ว แยกตามสถานที่
       <span style="margin-left:8px;font-size:11px;font-weight:400;color:var(--text2)">
         ติดตั้งแล้ว <strong style="color:var(--primary)">441</strong> จากทั้งหมด <strong>1,592</strong> เครื่อง
-        <span style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#eef1ff;color:var(--primary);font-size:10px;font-weight:600">รวม 28%</span>
+        <span style="margin-left:6px;padding:2px 8px;border-radius:99px;background:#fbeade;color:var(--primary);font-size:10px;font-weight:600">รวม 28%</span>
       </span>
     </div>
     <div style="height:220px"><canvas id="fab-total-bar-c"></canvas></div>
     <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2)">
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#ea6c1a;display:inline-block"></span>Switch ติดตั้งแล้ว</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP ติดตั้งแล้ว</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra ติดตั้งแล้ว</span>
-      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;border-top:2px dashed #94a3c4;display:inline-block"></span>เป้าหมายทั้งหมด</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#b8593a;display:inline-block"></span>Switch ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#7a8f4c;display:inline-block"></span>AP ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:3px;border-radius:2px;background:#c08a2e;display:inline-block"></span>Infra ติดตั้งแล้ว</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:2px;border-top:2px dashed #9c8a74;display:inline-block"></span>เป้าหมายทั้งหมด</span>
     </div>
   </div>
 
@@ -1204,7 +1229,7 @@ main { padding: 12px 10px; }
     </div>
     <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
       <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v" id="plan-plan-pct">–%</div></div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f0f4ff;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
+      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f5ede0;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
       <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red" id="plan-status">–</div></div>
     </div>
   </div>
@@ -1216,14 +1241,14 @@ main { padding: 12px 10px; }
       <div class="pcard"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" style="font-size:20px" id="plan-finish-date">–</div></div>
     </div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ประสิทธิภาพเทียบกับแผน:</div>
-    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f0f4ff;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
+    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f5ede0;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
     <div style="text-align:right;font-size:11px;margin-top:3px" id="plan-eff-status">⚠ ต่ำกว่าเป้าหมาย</div>
   </div>
   <div id="fpc-list"></div>
 
   <!-- แผนการติดตั้ง 2 สัปดาห์หน้า -->
   <div id="upcoming-header" style="display:flex;align-items:center;gap:7px;margin:20px 0 10px;font-size:13px;font-weight:600;color:var(--text)">
-    <div class="sic" style="background:#fef3c7;color:#d97706">📅</div>
+    <div class="sic" style="background:#faefd4;color:#c08a2e">📅</div>
     แผนการติดตั้ง 2 สัปดาห์หน้า
     <span style="font-size:11px;font-weight:400;color:var(--text2)" id="upcoming-range"></span>
   </div>
@@ -1302,7 +1327,7 @@ let DAILY_INF = []; // populated from API
 // Per-fabric daily installs
 let FAB_DAILY = {};
 // Fabric colors and totals for charts
-let FAB_COLORS = {'D1-041': '#ea6c1a', 'CFZ': '#2bc48a', 'T1-015': '#ff9f43', 'D1-091': '#a855f7', 'RFF': '#22b8cf', 'AMF': '#f76707', 'PPW': '#74c0fc'};
+let FAB_COLORS = {'D1-041': '#b8593a', 'CFZ': '#7a8f4c', 'T1-015': '#c08a2e', 'D1-091': '#8b6f47', 'RFF': '#6b8599', 'AMF': '#c08a2e', 'PPW': '#c4a885'};
 let FAB_TOTALS = {}; // populated from API
 
 // Plan targets (scheduled qty) per date matching DAILY_L
@@ -1339,8 +1364,8 @@ function lineOpts(color, yMax=100, yLabel='%') {
       }
     },
     scales:{
-      x:{ticks:{font:{size:10},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
-      y:{min:0,max:yMax,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
+      x:{ticks:{font:{size:10},maxRotation:45,color:'#9c8a74'},grid:{display:false}},
+      y:{min:0,max:yMax,ticks:{font:{size:10},color:'#9c8a74',callback:v=>v+'%'},grid:{color:'#f5ede0'}}
     }
   };
 }
@@ -1372,7 +1397,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
     const xT=x0+(x1-x0)*getTodayFrac();
     cv.save();
     cv.beginPath();cv.moveTo(xT,top);cv.lineTo(xT,bottom);
-    cv.strokeStyle='#ee4b4b';cv.lineWidth=1.2;cv.setLineDash([4,3]);cv.stroke();
+    cv.strokeStyle='#a8452e';cv.lineWidth=1.2;cv.setLineDash([4,3]);cv.stroke();
     cv.setLineDash([]);cv.restore();
   }};
 
@@ -1388,7 +1413,7 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
         if(i!==lastIdx && i%3!==0) return;
         ctx2.save();
         ctx2.font='9px Segoe UI';
-        ctx2.fillStyle=isPlan?'#94a3c4':((actColor||'#ea6c1a')+'99');
+        ctx2.fillStyle=isPlan?'#9c8a74':((actColor||'#b8593a')+'99');
         ctx2.textAlign='center';
         ctx2.textBaseline=isPlan?'bottom':'top';
         ctx2.fillText(v.toFixed(1)+'%', pt.x, isPlan?pt.y-4:pt.y+4);
@@ -1403,10 +1428,10 @@ function makeLineChart(canvasId, planData, actData, planColor, actColor, planLab
     data:{
       labels: WK,
       datasets:[
-        {label:planLabel||'แผน',data:planData,borderColor:planColor||'#64748b',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#64748b',tension:0.3,fill:false,spanGaps:false},
-        {label:actLabel||'จริง',data:actFull,borderColor:actColor||'#ea6c1a',borderWidth:2.5,
+        {label:planLabel||'แผน',data:planData,borderColor:planColor||'#6b5744',borderWidth:2,borderDash:[5,3],pointRadius:3,pointBackgroundColor:planColor||'#6b5744',tension:0.3,fill:false,spanGaps:false},
+        {label:actLabel||'จริง',data:actFull,borderColor:actColor||'#b8593a',borderWidth:2.5,
          pointRadius:(c)=>c.parsed.y!=null?4:0,
-         pointBackgroundColor:actColor||'#ea6c1a',tension:0.3,fill:false,spanGaps:false}
+         pointBackgroundColor:actColor||'#b8593a',tension:0.3,fill:false,spanGaps:false}
       ]
     },
     options:{...lineOpts(actColor),layout:{padding:{top:18,bottom:12}}}
@@ -1460,7 +1485,7 @@ function buildTypeBarChart(){
           if(di === 0){
             // plan bar — show total at end
             ctx.font = '8px Segoe UI';
-            ctx.fillStyle = '#94a3b8';
+            ctx.fillStyle = '#9c8a74';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(val, bar.x + 4, bar.y);
@@ -1468,7 +1493,7 @@ function buildTypeBarChart(){
             // done bar — show done (pct%)
             const pct = d.plan > 0 ? Math.round(d.done/d.plan*100) : 0;
             ctx.font = 'bold 8px Segoe UI';
-            ctx.fillStyle = '#ea6c1a';
+            ctx.fillStyle = '#b8593a';
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
             ctx.fillText(`${val} (${pct}%)`, bar.x + 4, bar.y);
@@ -1496,7 +1521,7 @@ function buildTypeBarChart(){
           label: 'ติดตั้งแล้ว',
           data: dones,
           backgroundColor: 'rgba(67,97,238,0.75)',
-          borderColor: '#ea6c1a',
+          borderColor: '#b8593a',
           borderWidth: 1,
           borderRadius: 3,
         },
@@ -1521,7 +1546,7 @@ function buildTypeBarChart(){
       },
       scales: {
         x: {
-          grid: { color: '#f0f4ff' },
+          grid: { color: '#f5ede0' },
           ticks: { font: { size: 9 }, maxTicksLimit: 8 },
         },
         y: {
@@ -1629,7 +1654,7 @@ function buildVelocityChart(){
         if(!v||v<1) return;
         const bar=chart.getDatasetMeta(0).data[i];
         ctx.save();
-        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#1e2d4d';
+        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#3d2817';
         ctx.textAlign='center'; ctx.textBaseline='bottom';
         ctx.fillText(v, bar.x, bar.y-2);
         ctx.restore();
@@ -1666,7 +1691,7 @@ function buildVelocityChart(){
             callback(val,i){ return [sliceLabels[i], sliceDateLabels[i]]; }
           }
         },
-        y:{grid:{color:'#f0f4ff'},ticks:{font:{size:10}},min:0}
+        y:{grid:{color:'#f5ede0'},ticks:{font:{size:10}},min:0}
       }
     }
   });
@@ -1718,13 +1743,13 @@ function buildFabGap(){
       ctx2.save();
       if(f.tot>0){
         ctx2.font='bold 10px Segoe UI'; ctx2.textAlign='left';
-        ctx2.textBaseline='middle'; ctx2.fillStyle='#1e2d4d';
+        ctx2.textBaseline='middle'; ctx2.fillStyle='#3d2817';
         ctx2.fillText(`${f.tot} เครื่อง`, bar.x+5, bar.y-5);
-        ctx2.font='9px Segoe UI'; ctx2.fillStyle='#64748b';
+        ctx2.font='9px Segoe UI'; ctx2.fillStyle='#6b5744';
         ctx2.fillText(`(รวม ${f.d}/${f.t})`, bar.x+5, bar.y+5);
       } else {
         ctx2.font='9px Segoe UI'; ctx2.textAlign='left';
-        ctx2.textBaseline='middle'; ctx2.fillStyle='#94a3b8';
+        ctx2.textBaseline='middle'; ctx2.fillStyle='#9c8a74';
         ctx2.fillText(`– (รวม ${f.d}/${f.t})`, bar.x+5, bar.y);
       }
       ctx2.restore();
@@ -1764,8 +1789,8 @@ function buildFabGap(){
         }
       },
       scales:{
-        x:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'},min:0},
-        y:{ticks:{font:{size:11},color:'#1e2d4d'},grid:{display:false}}
+        x:{ticks:{font:{size:10}},grid:{color:'#f5ede0'},min:0},
+        y:{ticks:{font:{size:11},color:'#3d2817'},grid:{display:false}}
       }
     }
   });
@@ -1837,7 +1862,7 @@ function buildWeekdayChart(){
         if(!tot||!lastMeta.data[i]) return;
         const bar=lastMeta.data[i];
         ctx.save();
-        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#1e2d4d';
+        ctx.font='bold 10px Segoe UI'; ctx.fillStyle='#3d2817';
         ctx.textAlign='center'; ctx.textBaseline='bottom';
         ctx.fillText(tot, bar.x, bar.y-3);
         ctx.restore();
@@ -1866,8 +1891,8 @@ function buildWeekdayChart(){
         }
       },
       scales:{
-        x:{stacked:true, grid:{display:false}, ticks:{font:{size:10},color:'#1e2d4d'}},
-        y:{stacked:true, grid:{color:'#f0f4ff'}, ticks:{font:{size:10}}, min:0}
+        x:{stacked:true, grid:{display:false}, ticks:{font:{size:10},color:'#3d2817'}},
+        y:{stacked:true, grid:{color:'#f5ede0'}, ticks:{font:{size:10}}, min:0}
       }
     }
   });
@@ -1884,7 +1909,7 @@ function buildGauge(pct){
   const cv=document.getElementById('gauge-c'); if(!cv) return;
   const ex=Chart.getChart(cv); if(ex) ex.destroy();
   const p=Math.min(Math.max(pct||0,0),150);
-  const color=p>=100?'#2bc48a':p>=70?'#ff9f43':'#ee4b4b';
+  const color=p>=100?'#7a8f4c':p>=70?'#c08a2e':'#a8452e';
   const trackColor=p>=100?'rgba(43,196,138,.2)':p>=70?'rgba(253,211,77,.25)':'rgba(238,75,75,.15)';
   // arc: filled = p/150 ของครึ่งวงกลม
   const filled=Math.min(Math.round(p),100);
@@ -1935,11 +1960,11 @@ function buildBurndown(){
     const x=chart.getDatasetMeta(0).data[tIdx].x;
     ctx.save();
     ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,bottom);
-    ctx.strokeStyle='#ee4b4b';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.stroke();
+    ctx.strokeStyle='#a8452e';ctx.lineWidth=1.5;ctx.setLineDash([5,3]);ctx.stroke();
     ctx.setLineDash([]);
     ctx.font='bold 10px Segoe UI,sans-serif';
     const tw=ctx.measureText(todayLbl).width;
-    ctx.fillStyle='#ee4b4b';
+    ctx.fillStyle='#a8452e';
     ctx.beginPath();ctx.roundRect(x-tw/2-4,top-18,tw+8,16,4);ctx.fill();
     ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='top';
     ctx.fillText(todayLbl,x,top-16);ctx.restore();
@@ -1950,11 +1975,11 @@ function buildBurndown(){
     data:{
       labels:_labels,
       datasets:[
-        {label:'แผน',data:_bdPlan,borderColor:'#94a3c4',borderWidth:1.5,
+        {label:'แผน',data:_bdPlan,borderColor:'#9c8a74',borderWidth:1.5,
          borderDash:[6,4],pointRadius:0,tension:0.3,fill:false,spanGaps:true},
-        {label:'จริง',data:_bdAct,borderColor:'#2bc48a',borderWidth:2.5,
+        {label:'จริง',data:_bdAct,borderColor:'#7a8f4c',borderWidth:2.5,
          pointRadius:(c)=>c.dataIndex===lastActIdx?4:0,
-         pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
+         pointBackgroundColor:'#7a8f4c',tension:0.3,fill:false,spanGaps:false},
       ]
     },
     options:{
@@ -1972,10 +1997,10 @@ function buildBurndown(){
         }
       },
       scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
              callback:(v,i)=>i%tickStep===0?_labels[i]:null},grid:{display:false}},
-        y:{min:0,suggestedMax:window.TOTAL_HKT||252,ticks:{font:{size:10},color:'#94a3c4',
-             callback:v=>v.toLocaleString()},grid:{color:'#f0f4ff'}}
+        y:{min:0,suggestedMax:window.TOTAL_HKT||252,ticks:{font:{size:10},color:'#9c8a74',
+             callback:v=>v.toLocaleString()},grid:{color:'#f5ede0'}}
       }
     }
   });
@@ -1985,7 +2010,7 @@ function buildBurndown(){
 function buildDonut(){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
   if(_ch_donutc) _ch_donutc.destroy();
-  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#2bc48a','#ea6c1a','#ee4b4b','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
+  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
 }
 
 function buildTimeline(){
@@ -2017,11 +2042,11 @@ function buildTimeline(){
     const pp = Math.min(100, Math.round(_overallPlanNow));
     const gap=p-pp;
     const gapStr=(gap>=0?'+':'')+gap+'%';
-    const gapColor=gap>=0?'#16a34a':'#dc2626';
-    const bg=p>=80?'#ecfdf5;color:#065f46':p>=30?'#fff5e6;color:#92400e':'#eef1ff;color:var(--primary)';
+    const gapColor=gap>=0?'#7a8f4c':'#a8452e';
+    const bg=p>=80?'#ecfdf5;color:#556b35':p>=30?'#faefd4;color:#8f3f26':'#fbeade;color:var(--primary)';
 
     const _fname = f.n||f.name||'';
-    const _fcolor = f.c||'#ea6c1a';
+    const _fcolor = f.c||'#b8593a';
     return `<div class="tlr">
       <div class="tlt">
         <div class="tln">${_fname}</div>
@@ -2081,12 +2106,12 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
     const x=chart.getDatasetMeta(0).data[tIdx].x;
     cv.save();
     cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
-    cv.strokeStyle='#ee4b4b';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
+    cv.strokeStyle='#a8452e';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
     cv.setLineDash([]);
     // pill วันที่
     cv.font='bold 9px Segoe UI,sans-serif';
     const tw=cv.measureText(todayLbl).width;
-    cv.fillStyle='#ee4b4b';
+    cv.fillStyle='#a8452e';
     cv.beginPath();cv.roundRect(x-tw/2-4,top-18,tw+8,14,3);cv.fill();
     cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
     cv.fillText(todayLbl,x,top-16);
@@ -2107,7 +2132,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
       const isPlan=di===0;
       ctx2.save();
       ctx2.font='bold 9px Segoe UI';
-      ctx2.fillStyle=isPlan?(planColor||'#94a3c4'):(actColor||'#ea6c1a');
+      ctx2.fillStyle=isPlan?(planColor||'#9c8a74'):(actColor||'#b8593a');
       ctx2.textAlign='left';
       ctx2.textBaseline=isPlan?'bottom':'top';
       const suffix=yUnit==='%'?'%':' เครื่อง';
@@ -2117,7 +2142,7 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
   }};
 
   // actColor with opacity สำหรับ fill (robust — handle any color format)
-  const _hex6 = (actColor||'#ea6c1a').replace('#','').slice(0,6);
+  const _hex6 = (actColor||'#b8593a').replace('#','').slice(0,6);
   const _r=parseInt(_hex6.slice(0,2),16)||67, _g=parseInt(_hex6.slice(2,4),16)||97, _b=parseInt(_hex6.slice(4,6),16)||238;
   const fillBg = `rgba(${_r},${_g},${_b},0.06)`;
 
@@ -2126,14 +2151,14 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
     data:{
       labels,
       datasets:[
-        {label:'แผน',data:planData,borderColor:planColor||'#94a3c4',borderDash:[5,3],
+        {label:'แผน',data:planData,borderColor:planColor||'#9c8a74',borderDash:[5,3],
          borderWidth:1.5,
          pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-         pointBackgroundColor:planColor||'#94a3c4',
+         pointBackgroundColor:planColor||'#9c8a74',
          tension:0.3,fill:false,spanGaps:true},
-        {label:'จริง',data:actData,borderColor:actColor||'#ea6c1a',borderWidth:2.5,
+        {label:'จริง',data:actData,borderColor:actColor||'#b8593a',borderWidth:2.5,
          pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-         pointBackgroundColor:actColor||'#ea6c1a',tension:0.3,
+         pointBackgroundColor:actColor||'#b8593a',tension:0.3,
          fill:true,backgroundColor:fillBg,spanGaps:false},
       ]
     },
@@ -2155,13 +2180,13 @@ function buildDailyChart(canvasId, labels, planData, actData, planColor, actColo
         }
       },
       scales:{
-        x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+        x:{ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
              callback:(v,i)=>i%tickStep===0?labels[i]:null},
            grid:{display:false}},
         y:{min:0,max:yMax||100,
-           ticks:{font:{size:10},color:'#94a3c4',stepSize:yUnit==='%'?10:undefined,
+           ticks:{font:{size:10},color:'#9c8a74',stepSize:yUnit==='%'?10:undefined,
              callback:v=>yUnit==='%'?v+'%':v.toLocaleString()},
-           grid:{color:'#f0f4ff'}}
+           grid:{color:'#f5ede0'}}
       }
     }
   });
@@ -2197,11 +2222,11 @@ function buildProgressCharts(){
       const x=chart.getDatasetMeta(0).data[tIdx].x;
       cv.save();
       cv.beginPath();cv.moveTo(x,top);cv.lineTo(x,bottom);
-      cv.strokeStyle='#ee4b4b';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
+      cv.strokeStyle='#a8452e';cv.lineWidth=1.5;cv.setLineDash([5,3]);cv.stroke();
       cv.setLineDash([]);
       cv.font='bold 10px Segoe UI,sans-serif';
       const tw=cv.measureText(todayLbl).width;
-      cv.fillStyle='#ee4b4b';
+      cv.fillStyle='#a8452e';
       cv.beginPath();cv.roundRect(x-tw/2-4,top-18,tw+8,16,4);cv.fill();
       cv.fillStyle='#fff';cv.textAlign='center';cv.textBaseline='top';
       cv.fillText(todayLbl,x,top-16);cv.restore();
@@ -2220,7 +2245,7 @@ function buildProgressCharts(){
         const isPlan=di===0;
         ctx.save();
         ctx.font='bold 9px Segoe UI';
-        ctx.fillStyle=isPlan?'#94a3c4':'#ea6c1a';
+        ctx.fillStyle=isPlan?'#9c8a74':'#b8593a';
         ctx.textAlign='left';
         ctx.textBaseline=isPlan?'bottom':'top';
         ctx.fillText(v.toFixed(1)+'%', pt.x+5, isPlan?pt.y-2:pt.y+2);
@@ -2234,14 +2259,14 @@ function buildProgressCharts(){
       data:{
         labels:_pLabels,
         datasets:[
-          {label:'แผน (%)',data:_pPlan,borderColor:'#94a3c4',borderDash:[5,3],
+          {label:'แผน (%)',data:_pPlan,borderColor:'#9c8a74',borderDash:[5,3],
            borderWidth:1.5,
            pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-           pointBackgroundColor:'#94a3c4',
+           pointBackgroundColor:'#9c8a74',
            tension:0.3,fill:false,spanGaps:true},
-          {label:'จริง (%)',data:_pAct,borderColor:'#ea6c1a',borderWidth:2.5,
+          {label:'จริง (%)',data:_pAct,borderColor:'#b8593a',borderWidth:2.5,
            pointRadius:(c)=>c.dataIndex===lastActIdx?3:0,
-           pointBackgroundColor:'#ea6c1a',tension:0.3,fill:true,
+           pointBackgroundColor:'#b8593a',tension:0.3,fill:true,
            backgroundColor:'rgba(67,97,238,0.06)',spanGaps:false},
         ]
       },
@@ -2260,11 +2285,11 @@ function buildProgressCharts(){
           }
         },
         scales:{
-          x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+          x:{ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
                callback:(v,i)=>useDaily?(i%7===0?_pLabels[i]:null):_pLabels[i]},
              grid:{display:false}},
-          y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},
-             grid:{color:'#f0f4ff'}}
+          y:{min:0,max:100,ticks:{font:{size:10},color:'#9c8a74',stepSize:10,callback:v=>v+'%'},
+             grid:{color:'#f5ede0'}}
         }
       }
     });
@@ -2289,7 +2314,7 @@ function buildProgressCharts(){
   };
 
   // SW chart — daily
-  buildDailyChart('prog-sw-c', DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT, '#818cf8','#ea6c1a', 100, '%');
+  buildDailyChart('prog-sw-c', DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT, '#d98967','#b8593a', 100, '%');
   const _swH=_getHeaderVals(DAILY_PROG_LABELS, DAILY_SW_PLAN, DAILY_SW_ACT);
   const _pSwEl=document.getElementById('prog-sw-plan-lbl');
   const _aSwEl=document.getElementById('prog-sw-act-lbl');
@@ -2297,7 +2322,7 @@ function buildProgressCharts(){
   if(_aSwEl&&_swH.actNow!=null)  _aSwEl.textContent='จริง: '+_swH.actNow.toFixed(1)+'%';
 
   // AP chart — daily
-  buildDailyChart('prog-ap-c', DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT, '#34d399','#2bc48a', 100, '%');
+  buildDailyChart('prog-ap-c', DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT, '#34d399','#7a8f4c', 100, '%');
   const _apH=_getHeaderVals(DAILY_PROG_LABELS, DAILY_AP_PLAN, DAILY_AP_ACT);
   const _pApEl=document.getElementById('prog-ap-plan-lbl');
   const _aApEl=document.getElementById('prog-ap-act-lbl');
@@ -2341,19 +2366,19 @@ function buildProgressCharts(){
 
     div.innerHTML =
       '<div class="ch" style="margin-bottom:8px;flex-wrap:wrap;gap:4px">'+
-        '<div style="width:10px;height:10px;border-radius:50%;background:'+(f.c||'#ea6c1a')+';flex-shrink:0"></div>'+
+        '<div style="width:10px;height:10px;border-radius:50%;background:'+(f.c||'#b8593a')+';flex-shrink:0"></div>'+
         '<span style="font-size:13px;font-weight:700">'+fname+'</span>'+
         '<div style="display:flex;gap:8px;margin-left:auto;font-size:11px">'+
-          '<span style="color:#818cf8">SW: '+swPctLbl+'</span>'+
+          '<span style="color:#d98967">SW: '+swPctLbl+'</span>'+
           ''+ // HKT ไม่มี AP per site
         '</div>'+
       '</div>'+
       '<div style="height:190px"><canvas id="'+cid+'"></canvas></div>'+
       '<div class="cleg" style="margin-top:6px">'+
-        '<div class="cl"><div class="cld" style="border-color:#a5b4fc"></div>SW แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#ea6c1a"></div>SW จริง</div>'+
-        '<div class="cl"><div class="cld" style="border-color:#6ee7b7"></div>AP แผน</div>'+
-        '<div class="cl"><div class="cll" style="background:#2bc48a"></div>AP จริง</div>'+
+        '<div class="cl"><div class="cld" style="border-color:#e8b99b"></div>SW แผน</div>'+
+        '<div class="cl"><div class="cll" style="background:#b8593a"></div>SW จริง</div>'+
+        '<div class="cl"><div class="cld" style="border-color:#c4d9a0"></div>AP แผน</div>'+
+        '<div class="cl"><div class="cll" style="background:#7a8f4c"></div>AP จริง</div>'+
         '<div class="cl" style="color:var(--danger);font-size:11px">| วันนี้</div>'+
       '</div>';
     wrap.appendChild(div);
@@ -2377,11 +2402,11 @@ function buildProgressCharts(){
         const x=chart.getDatasetMeta(0).data[tIdx].x;
         cv3.save();
         cv3.beginPath();cv3.moveTo(x,top);cv3.lineTo(x,bottom);
-        cv3.strokeStyle='#ee4b4b';cv3.lineWidth=1.2;cv3.setLineDash([4,3]);cv3.stroke();
+        cv3.strokeStyle='#a8452e';cv3.lineWidth=1.2;cv3.setLineDash([4,3]);cv3.stroke();
         cv3.setLineDash([]);
         cv3.font='bold 9px Segoe UI,sans-serif';
         const tw=cv3.measureText(_tod).width;
-        cv3.fillStyle='#ee4b4b';
+        cv3.fillStyle='#a8452e';
         cv3.beginPath();cv3.roundRect(x-tw/2-3,top-18,tw+6,13,3);cv3.fill();
         cv3.fillStyle='#fff';cv3.textAlign='center';cv3.textBaseline='top';
         cv3.fillText(_tod,x,top-16);cv3.restore();
@@ -2397,7 +2422,7 @@ function buildProgressCharts(){
         // pair: [dataset_index, shared_last_idx]
         const pairs=[[0,swLastIdx],[1,swLastIdx],[2,apLastIdx],[3,apLastIdx]];
         // สีชัดเจน: actual ใช้สีเต็ม, plan ใช้สีเดียวกันแต่จาง
-        const pairColors=['#ea6c1a','#ea6c1a','#2bc48a','#2bc48a'];
+        const pairColors=['#b8593a','#b8593a','#7a8f4c','#7a8f4c'];
         // actual values จาก fab_obj (ตรงกับ Dashboard)
         const actualVals=[
           null,  // di=0: SW แผน — ใช้จาก data
@@ -2429,20 +2454,20 @@ function buildProgressCharts(){
         data:{
           labels:DAILY_PROG_LABELS,
           datasets:[
-            {label:'SW แผน',data:_swPlan,borderColor:'#818cf8',borderDash:[5,3],
+            {label:'SW แผน',data:_swPlan,borderColor:'#d98967',borderDash:[5,3],
              borderWidth:1.5,
              pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
-             pointBackgroundColor:'#818cf8',tension:0.3,fill:false,spanGaps:true},
-            {label:'SW จริง',data:_swAct,borderColor:'#ea6c1a',borderWidth:2,
+             pointBackgroundColor:'#d98967',tension:0.3,fill:false,spanGaps:true},
+            {label:'SW จริง',data:_swAct,borderColor:'#b8593a',borderWidth:2,
              pointRadius:(c)=>c.dataIndex===lastSwIdx?3:0,
-             pointBackgroundColor:'#ea6c1a',tension:0.3,fill:false,spanGaps:false},
-            {label:'AP แผน',data:[],borderColor:'#6ee7b7',borderDash:[5,3],
+             pointBackgroundColor:'#b8593a',tension:0.3,fill:false,spanGaps:false},
+            {label:'AP แผน',data:[],borderColor:'#c4d9a0',borderDash:[5,3],
              borderWidth:1.5,
              pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
-             pointBackgroundColor:'#6ee7b7',tension:0.3,fill:false,spanGaps:true},
-            {label:'AP จริง',data:[],borderColor:'#2bc48a',borderWidth:2,
+             pointBackgroundColor:'#c4d9a0',tension:0.3,fill:false,spanGaps:true},
+            {label:'AP จริง',data:[],borderColor:'#7a8f4c',borderWidth:2,
              pointRadius:(c)=>c.dataIndex===lastApIdx?3:0,
-             pointBackgroundColor:'#2bc48a',tension:0.3,fill:false,spanGaps:false},
+             pointBackgroundColor:'#7a8f4c',tension:0.3,fill:false,spanGaps:false},
           ]
         },
         options:{
@@ -2459,9 +2484,9 @@ function buildProgressCharts(){
             }
           },
           scales:{
-            x:{ticks:{font:{size:9},maxRotation:45,color:'#94a3c4',
+            x:{ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
                  callback:(v,i)=>i%7===0?DAILY_PROG_LABELS[i]:null},grid:{display:false}},
-            y:{min:0,max:100,ticks:{font:{size:10},color:'#94a3c4',stepSize:10,callback:v=>v+'%'},grid:{color:'#f0f4ff'}}
+            y:{min:0,max:100,ticks:{font:{size:10},color:'#9c8a74',stepSize:10,callback:v=>v+'%'},grid:{color:'#f5ede0'}}
           }
         }
       });
@@ -2475,7 +2500,7 @@ function buildProgressCharts(){
 function buildOneFabChart(fab) {
   const fd = FAB_DAILY[fab];
   if(!fd) return;
-  const fabColor = FAB_COLORS[fab] || '#ea6c1a';
+  const fabColor = FAB_COLORS[fab] || '#b8593a';
   const hasData = fd.sw.some(v=>v>0) || fd.ap.some(v=>v>0) || fd.inf.some(v=>v>0);
   if(!hasData) return;
   const ctx = document.getElementById('fd-' + fab.replace(/-/g,'') + '-c');
@@ -2488,9 +2513,9 @@ function buildOneFabChart(fab) {
     data: {
       labels: DAILY_L,
       datasets: [
-    {label:'Switch', data:fd.sw,  backgroundColor:'#ea6c1a', borderRadius:3, stack:'s', order:2},
-    {label:'AP',     data:fd.ap,  backgroundColor:'#2bc48a', borderRadius:3, stack:'s', order:2},
-    {label:'Infra',  data:fd.inf, backgroundColor:'#ff9f43', borderRadius:3, stack:'s', order:2},
+    {label:'Switch', data:fd.sw,  backgroundColor:'#b8593a', borderRadius:3, stack:'s', order:2},
+    {label:'AP',     data:fd.ap,  backgroundColor:'#7a8f4c', borderRadius:3, stack:'s', order:2},
+    {label:'Infra',  data:fd.inf, backgroundColor:'#c08a2e', borderRadius:3, stack:'s', order:2},
     {
       label:'เป้าตามแผน',
       data: planData,
@@ -2536,8 +2561,8 @@ function buildOneFabChart(fab) {
     }
       },
       scales:{
-    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#94a3c4'},grid:{display:false}},
-    y:{stacked:true,ticks:{font:{size:9},color:'#94a3c4',callback:v=>v>0?v:''},grid:{color:'#f0f4ff'},min:0}
+    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#9c8a74'},grid:{display:false}},
+    y:{stacked:true,ticks:{font:{size:9},color:'#9c8a74',callback:v=>v>0?v:''},grid:{color:'#f5ede0'},min:0}
       }
     }
   });
@@ -2558,7 +2583,7 @@ function buildGraphs(){
     const el=document.getElementById(id);
     if(el){const ch=Chart.getChart(el);if(ch)ch.destroy();}
   });
-  new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#ea6c1a','#2bc48a','#ff9f43'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
+  new Chart(document.getElementById('type-c'),{type:'doughnut',data:{datasets:[{data:[1121,445,26],backgroundColor:['#b8593a','#7a8f4c','#c08a2e'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8}}}});
   new Chart(document.getElementById('fab-bar-c'),{
   type:'bar',
   data:{
@@ -2584,7 +2609,7 @@ function buildGraphs(){
         ctx.textBaseline='bottom';
         ctx.fillText(val+'%', bar.x, bar.y-3);
         ctx.font='9px Segoe UI';
-        ctx.fillStyle='#64748b';
+        ctx.fillStyle='#6b5744';
         ctx.textBaseline='bottom';
         ctx.fillText(done+'/'+total, bar.x, bar.y-14);
         ctx.restore();
@@ -2602,7 +2627,7 @@ function buildGraphs(){
       }
     },
     scales:{
-      y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},
+      y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f5ede0'}},
       x:{ticks:{font:{size:10}},grid:{display:false}}
     }
   }
@@ -2628,7 +2653,7 @@ function buildGraphs(){
         plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
           tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,
             callbacks:{footer:items=>`รวม: ${items.reduce((a,c)=>a+c.parsed.y,0)} เครื่อง`}}},
-        scales:{y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:10}},grid:{display:false}}}
+        scales:{y:{ticks:{font:{size:10}},grid:{color:'#f5ede0'}},x:{ticks:{font:{size:10}},grid:{display:false}}}
       }
     });
   }
@@ -2654,11 +2679,11 @@ function buildGraphs(){
         const x=chart.getDatasetMeta(0).data[tIdx].x;
         cv2.save();
         cv2.beginPath();cv2.moveTo(x,top);cv2.lineTo(x,bottom);
-        cv2.strokeStyle='#ee4b4b';cv2.lineWidth=1.5;cv2.setLineDash([5,3]);cv2.stroke();
+        cv2.strokeStyle='#a8452e';cv2.lineWidth=1.5;cv2.setLineDash([5,3]);cv2.stroke();
         cv2.setLineDash([]);
         cv2.font='bold 9px Segoe UI';
         const tw2=cv2.measureText(_todayL).width;
-        cv2.fillStyle='#ee4b4b';
+        cv2.fillStyle='#a8452e';
         cv2.beginPath();cv2.roundRect(x-tw2/2-3,top-18,tw2+6,13,3);cv2.fill();
         cv2.fillStyle='#fff';cv2.textAlign='center';cv2.textBaseline='top';
         cv2.fillText(_todayL,x,top-16);cv2.restore();
@@ -2682,12 +2707,12 @@ function buildGraphs(){
       }};
       new Chart(_cumEl,{type:'line',plugins:[_tdCum,_lblCum],
         data:{labels:DAILY_L,datasets:[
-          {label:'Switch',data:_cumSW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#ea6c1a',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#ea6c1a',spanGaps:true},
-          {label:'AP',    data:_cumAP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#2bc48a',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#2bc48a',spanGaps:true},
-          {label:'Infra', data:_cumInf,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#ff9f43',borderWidth:2,tension:0.4,
-           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#ff9f43',spanGaps:true}
+          {label:'Switch',data:_cumSW,fill:true,backgroundColor:'rgba(67,97,238,.12)',borderColor:'#b8593a',borderWidth:2,tension:0.4,
+           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#b8593a',spanGaps:true},
+          {label:'AP',    data:_cumAP,fill:true,backgroundColor:'rgba(43,196,138,.12)',borderColor:'#7a8f4c',borderWidth:2,tension:0.4,
+           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#7a8f4c',spanGaps:true},
+          {label:'Infra', data:_cumInf,fill:true,backgroundColor:'rgba(255,159,67,.15)',borderColor:'#c08a2e',borderWidth:2,tension:0.4,
+           pointRadius:(c)=>c.dataIndex===_lastIdx?3:0,pointBackgroundColor:'#c08a2e',spanGaps:true}
         ]},
         options:{responsive:true,maintainAspectRatio:false,
           layout:{padding:{top:16,right:80,bottom:8}},
@@ -2702,8 +2727,8 @@ function buildGraphs(){
             }
           },
           scales:{
-            y:{ticks:{font:{size:10}},grid:{color:'#f0f4ff'}},
-            x:{ticks:{font:{size:8},maxRotation:45,color:'#94a3c4',
+            y:{ticks:{font:{size:10}},grid:{color:'#f5ede0'}},
+            x:{ticks:{font:{size:8},maxRotation:45,color:'#9c8a74',
                 callback:(v,i)=>i%7===0?DAILY_L[i]:null},grid:{display:false}}
           }
         }
@@ -2711,7 +2736,7 @@ function buildGraphs(){
     }
   }
   const tl=[['อาคารสนง.',38],['Concourse D',33],['Concourse A',85],['AIMS',16],['Concourse C',69],['CFZ BFZ',100],['Concourse G',0],['AMF1',4]];
-  if(document.getElementById('loc-bar-c')) new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#2bc48a':l[1]>=30?'#ff9f43':'#ea6c1a'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f0f4ff'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
+  if(document.getElementById('loc-bar-c')) new Chart(document.getElementById('loc-bar-c'),{type:'bar',data:{labels:tl.map(l=>l[0]),datasets:[{data:tl.map(l=>l[1]),backgroundColor:tl.map(l=>l[1]>=80?'#7a8f4c':l[1]>=30?'#c08a2e':'#b8593a'),borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:10,cornerRadius:8,callbacks:{label:(c)=>` ${c.parsed.y}%`}}},scales:{y:{max:100,ticks:{callback:v=>v+'%',font:{size:10}},grid:{color:'#f5ede0'}},x:{ticks:{font:{size:9},maxRotation:45},grid:{display:false}}}}});
   if(document.getElementById('wd-cells') && DAILY_L.length){
     // ผลรวมแยกตามวันในสัปดาห์ (จ,อ,พ,พฤ,ศ,ส,อา) ตั้งแต่เริ่มต้นจนปัจจุบัน
     const _dowNames=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
@@ -2733,7 +2758,7 @@ function buildGraphs(){
       const g=Math.round(238-(238-78)*ratio);
       const b=Math.round(255-(255-216)*ratio);
       const bg=`rgb(${r},${g},${b})`;
-      const tc=ratio>=0.5?'#fff':'#1e2d4d';
+      const tc=ratio>=0.5?'#fff':'#3d2817';
       return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${lbl}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
     }).join('');
   }
@@ -2757,14 +2782,14 @@ function buildGraphs(){
     data: {
       labels: fabLabelsWithCount,
       datasets: [
-        {label:'Switch ติดตั้งแล้ว',   data:fabSwTotals,   backgroundColor:'#ea6c1a', borderRadius:3, stack:'done', order:2},
-        {label:'AP ติดตั้งแล้ว',        data:fabApTotals,   backgroundColor:'#2bc48a', borderRadius:3, stack:'done', order:2},
-        {label:'Infra ติดตั้งแล้ว',     data:fabInfTotals,  backgroundColor:'#ff9f43', borderRadius:3, stack:'done', order:2},
+        {label:'Switch ติดตั้งแล้ว',   data:fabSwTotals,   backgroundColor:'#b8593a', borderRadius:3, stack:'done', order:2},
+        {label:'AP ติดตั้งแล้ว',        data:fabApTotals,   backgroundColor:'#7a8f4c', borderRadius:3, stack:'done', order:2},
+        {label:'Infra ติดตั้งแล้ว',     data:fabInfTotals,  backgroundColor:'#c08a2e', borderRadius:3, stack:'done', order:2},
         {
           label:'เป้าหมายทั้งหมด',
           data: fabPlanTotals,
           type: 'line',
-          borderColor: '#94a3c4',
+          borderColor: '#9c8a74',
           borderWidth: 2,
           borderDash: [4,3],
           pointStyle: 'line',
@@ -2804,8 +2829,8 @@ function buildGraphs(){
         datalabels: false,
       },
       scales:{
-        x:{stacked:true,ticks:{font:{size:11},color:'#94a3c4'},grid:{display:false}},
-        y:{stacked:true,ticks:{font:{size:10},color:'#94a3c4',callback:v=>v+' เครื่อง'},grid:{color:'#f0f4ff'}}
+        x:{stacked:true,ticks:{font:{size:11},color:'#9c8a74'},grid:{display:false}},
+        y:{stacked:true,ticks:{font:{size:10},color:'#9c8a74',callback:v=>v+' เครื่อง'},grid:{color:'#f5ede0'}}
       }
     },
     plugins:[{
@@ -2824,13 +2849,13 @@ function buildGraphs(){
           allMeta.forEach(m=>{ if(m.data[i]) topY=Math.min(topY,m.data[i].y); });
           ctx.save();
           ctx.font = 'bold 11px Segoe UI,sans-serif';
-          ctx.fillStyle = '#1e2d4d';
+          ctx.fillStyle = '#3d2817';
           ctx.textAlign = 'center';
           const label = done>0 ? `${done}/${plan}` : `0/${plan}`;
           ctx.fillText(label, bar.x, topY - 6);
           // pct badge
           ctx.font = '10px Segoe UI,sans-serif';
-          ctx.fillStyle = pct>=80?'#065f46':pct>=30?'#92400e':'#3451d1';
+          ctx.fillStyle = pct>=80?'#556b35':pct>=30?'#8f3f26':'#3451d1';
           ctx.fillText(`(${pct}%)`, bar.x, topY - 18);
           ctx.restore();
         });
@@ -2859,8 +2884,8 @@ function buildGraphs(){
     const fabDoneTotal = FAB_TOTALS[fab].sw + FAB_TOTALS[fab].ap + FAB_TOTALS[fab].inf;
     const fabPlanTotal = FAB_PLAN_TOTALS[fab] || 0;
     const fabPct = fabPlanTotal>0 ? Math.round(fabDoneTotal/fabPlanTotal*100) : 0;
-    const fabPctColor = fabPct>=80?'#065f46':fabPct>=30?'#92400e':'#ea6c1a';
-    const fabPctBg    = fabPct>=80?'#ecfdf5':fabPct>=30?'#fff5e6':'#eef1ff';
+    const fabPctColor = fabPct>=80?'#556b35':fabPct>=30?'#8f3f26':'#b8593a';
+    const fabPctBg    = fabPct>=80?'#ecfdf5':fabPct>=30?'#faefd4':'#fbeade';
     const canvasId = 'fd-' + fab.replace(/-/g,'') + '-c';
     const chartHtml = hasData
       ? '<div style="height:160px"><canvas id="' + canvasId + '"></canvas></div>'
@@ -2879,9 +2904,9 @@ function buildGraphs(){
       </div>
       ${chartHtml}
       <div style="display:flex;gap:12px;margin-top:8px;font-size:11px;color:var(--text2);flex-wrap:wrap">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ea6c1a;display:inline-block"></span>Switch</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#2bc48a;display:inline-block"></span>AP</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#ff9f43;display:inline-block"></span>Infra</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#b8593a;display:inline-block"></span>Switch</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#7a8f4c;display:inline-block"></span>AP</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#c08a2e;display:inline-block"></span>Infra</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:0;border-top:2px dashed ${fabColor};display:inline-block"></span>เป้าตามแผน</span>
       </div>`;
     wrap.appendChild(div);
@@ -2917,7 +2942,7 @@ function buildLocList(){
       const pc=Math.min(l.p,100);
       const done=(pc>=100);
       const bc=done?'#22c55e':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
-      const pctC=done?'#16a34a':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
+      const pctC=done?'#7a8f4c':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
       const rowBg=done?'background:#f0fdf4;border-left:3px solid #22c55e;':'border-left:3px solid transparent;';
       const badge=done?'<span style="font-size:10px;font-weight:700;background:#bbf7d0;color:#166534;padding:1px 7px;border-radius:99px;margin-left:6px;flex-shrink:0">✓ 100%</span>':'';
       return '<div class="locrow" style="'+rowBg+'">'
@@ -2982,14 +3007,14 @@ function buildFabCards(){
   if(!w) return;
   w.innerHTML='';
   const pairs=[];for(let i=0;i<FABRICS.length;i+=2)pairs.push(FABRICS.slice(i,i+2));
-  w.innerHTML=pairs.map(pair=>`<div class="g2" style="margin-bottom:9px">${pair.map(f=>{const p=Math.round(f.p),swp=f.sw.t>0?Math.round(f.sw.d/f.sw.t*100):0,app=f.ap.t>0?Math.round(f.ap.d/f.ap.t*100):0,inp=f.inf.t>0?Math.round(f.inf.d/f.inf.t*100):0;const pbg=p>=80?'var(--success-l);color:#065f46':p>=30?'var(--warning-l);color:#92400e':'var(--primary-l);color:var(--primary)';return `<div class="fpc"><div class="fpc-h"><div class="fpc-name"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>🏗 Fabric ${f.n}</div><div class="fpc-pct" style="background:${pbg}">${p}%</div></div><div class="fpc-big">${f.d}/${f.t}</div><div class="fpc-sub">อุปกรณ์ที่ติดตั้งแล้ว</div><div class="fpc-bar"><div class="fpc-fill" style="width:${p}%;background:${f.c}"></div></div><div class="fpc-cats"><div class="fcc"><div class="cl" style="color:#ea6c1a">🔀 Switch:</div><div class="cv">${f.sw.d}/${f.sw.t} (${swp}%)</div><div class="cb"><div class="cbf" style="width:${swp}%;background:#ea6c1a"></div></div></div><div class="fcc"><div class="cl" style="color:var(--success)">📶 AP:</div><div class="cv">${f.ap.d}/${f.ap.t} (${app}%)</div><div class="cb"><div class="cbf" style="width:${app}%;background:var(--success)"></div></div></div><div class="fcc"><div class="cl" style="color:var(--warning)">⚡ Infra:</div><div class="cv">${f.inf.d}/${f.inf.t} (${inp}%)</div><div class="cb"><div class="cbf" style="width:${inp}%;background:var(--warning)"></div></div></div></div><div class="fpc-dates"><div class="fdate"><div class="dl">เริ่ม:</div><div class="dv">${f.s}</div></div><div class="fdate"><div class="dl">สิ้นสุด:</div><div class="dv">${f.e}</div></div></div></div>`;}).join('')}</div>`).join('');
+  w.innerHTML=pairs.map(pair=>`<div class="g2" style="margin-bottom:9px">${pair.map(f=>{const p=Math.round(f.p),swp=f.sw.t>0?Math.round(f.sw.d/f.sw.t*100):0,app=f.ap.t>0?Math.round(f.ap.d/f.ap.t*100):0,inp=f.inf.t>0?Math.round(f.inf.d/f.inf.t*100):0;const pbg=p>=80?'var(--success-l);color:#556b35':p>=30?'var(--warning-l);color:#8f3f26':'var(--primary-l);color:var(--primary)';return `<div class="fpc"><div class="fpc-h"><div class="fpc-name"><div style="width:9px;height:9px;border-radius:50%;background:${f.c}"></div>🏗 Fabric ${f.n}</div><div class="fpc-pct" style="background:${pbg}">${p}%</div></div><div class="fpc-big">${f.d}/${f.t}</div><div class="fpc-sub">อุปกรณ์ที่ติดตั้งแล้ว</div><div class="fpc-bar"><div class="fpc-fill" style="width:${p}%;background:${f.c}"></div></div><div class="fpc-cats"><div class="fcc"><div class="cl" style="color:#b8593a">🔀 Switch:</div><div class="cv">${f.sw.d}/${f.sw.t} (${swp}%)</div><div class="cb"><div class="cbf" style="width:${swp}%;background:#b8593a"></div></div></div><div class="fcc"><div class="cl" style="color:var(--success)">📶 AP:</div><div class="cv">${f.ap.d}/${f.ap.t} (${app}%)</div><div class="cb"><div class="cbf" style="width:${app}%;background:var(--success)"></div></div></div><div class="fcc"><div class="cl" style="color:var(--warning)">⚡ Infra:</div><div class="cv">${f.inf.d}/${f.inf.t} (${inp}%)</div><div class="cb"><div class="cbf" style="width:${inp}%;background:var(--warning)"></div></div></div></div><div class="fpc-dates"><div class="fdate"><div class="dl">เริ่ม:</div><div class="dv">${f.s}</div></div><div class="fdate"><div class="dl">สิ้นสุด:</div><div class="dv">${f.e}</div></div></div></div>`;}).join('')}</div>`).join('');
 }
 
 // ── FABRIC BREAKDOWN TABLE ───────────────────────────────────────────────────
 
 function buildSiteBreakdowns(){
   const bar=(p)=>p>=80?'var(--success)':p>=40?'var(--warning)':'var(--primary)';
-  const COLORS=['#ea6c1a','#2bc48a','#ff9f43','#a855f7','#22b8cf','#f76707','#74c0fc'];
+  const COLORS=['#b8593a','#7a8f4c','#c08a2e','#8b6f47','#6b8599','#c08a2e','#c4a885'];
 
   // SW/Infra table
   const swTbody = document.getElementById('sw-inf-site-tbody');
@@ -3062,7 +3087,7 @@ function buildFabBreakdown(){
 
   // HKT ใช้ SITES (total/done รวม) แทน FABRICS ที่แยก SW/AP/Infra
   const useSites = SITES.length > 0 && FABRICS.every(f=>f.sw.t===0&&f.ap.t===0&&f.inf.t===0);
-  const COLORS=['#ea6c1a','#2bc48a','#ff9f43','#a855f7','#22b8cf','#f76707','#74c0fc'];
+  const COLORS=['#b8593a','#7a8f4c','#c08a2e','#8b6f47','#6b8599','#c08a2e','#c4a885'];
 
   const rows = useSites ? SITES.map((s,i) => {
     const pct = s.total>0 ? Math.round(s.done/s.total*100) : 0;
@@ -3089,9 +3114,9 @@ function buildFabBreakdown(){
     const totD   = f.sw.d  + f.ap.d  + f.inf.d;
     const totT   = f.sw.t  + f.ap.t  + f.inf.t;
     const totPct = totT > 0 ? Math.round(totD / totT * 100) : 0;
-    const swBar  = swPct>=80?'#ea6c1a':swPct>=40?'#7b93f5':'#c7d2fe';
-    const apBar  = apPct>=80?'#2bc48a':apPct>=40?'#52e3aa':'#a7f3d0';
-    const infBar = infPct>=80?'#ff9f43':infPct>=40?'#ffc27d':'#fde8c8';
+    const swBar  = swPct>=80?'#b8593a':swPct>=40?'#d98967':'#c7d2fe';
+    const apBar  = apPct>=80?'#7a8f4c':apPct>=40?'#52e3aa':'#a7f3d0';
+    const infBar = infPct>=80?'#c08a2e':infPct>=40?'#ffc27d':'#fde8c8';
     const totBar = totPct>=80?'var(--success)':totPct>=40?'var(--warning)':'var(--primary)';
     const cell = (done,plan,pct,barColor) => `<td class="fab-cell">
       <div class="fab-pct-bar"><div class="fpb"><div class="fpb-fill" style="width:${pct}%;background:${barColor}"></div></div>
@@ -3118,8 +3143,8 @@ function buildFabBreakdown(){
   const pct = (d,t)=> t>0?Math.round(d/t*100):0;
   tfoot.innerHTML = `<tr>
     <td style="font-weight:600;color:var(--text)">รวมทั้งหมด</td>
-    <td class="fab-cell" style="font-weight:700;color:#ea6c1a">${tSwD}</td>
-    <td style="color:var(--text2)">${tSwT} <span style="font-size:10px;background:#eef1ff;color:#ea6c1a;padding:1px 5px;border-radius:4px">${pct(tSwD,tSwT)}%</span></td>
+    <td class="fab-cell" style="font-weight:700;color:#b8593a">${tSwD}</td>
+    <td style="color:var(--text2)">${tSwT} <span style="font-size:10px;background:#fbeade;color:#b8593a;padding:1px 5px;border-radius:4px">${pct(tSwD,tSwT)}%</span></td>
     <td class="fab-cell" style="font-weight:700;color:var(--success)">${tApD}</td>
     <td style="color:var(--text2)">${tApT} <span style="font-size:10px;background:var(--success-l);color:var(--success);padding:1px 5px;border-radius:4px">${pct(tApD,tApT)}%</span></td>
     <td class="fab-cell" style="font-weight:700;color:var(--warning)">${tInfD}</td>
@@ -3241,7 +3266,7 @@ async function loadData(){
     AP_SITES.length=0; (d.ap_sites||[]).forEach(s=>AP_SITES.push(s));
     (d.fabrics||d.sites||[]).forEach(f=>FABRICS.push({
       n:f.n||f.name||'', t:f.t||f.total||0, d:f.d||f.done||0,
-      p:f.p||f.pct||0, h:f.h||0, r:f.r||0, c:f.c||'#ea6c1a',
+      p:f.p||f.pct||0, h:f.h||0, r:f.r||0, c:f.c||'#b8593a',
       s:f.s||'–', e:f.e||'–',
       sw:{t:f.sw?(f.sw.t||0):0, d:f.sw?(f.sw.d||0):0},
       ap:{t:f.ap?(f.ap.t||0):0, d:f.ap?(f.ap.d||0):0},
@@ -3395,7 +3420,7 @@ async function loadData(){
         tbTxt.textContent='ช้ากว่าแผน';
         if(tbDot){
           tbDot.style.animation='';
-          tbDot.style.background='#ff9f43';
+          tbDot.style.background='#c08a2e';
           tbDot.style.boxShadow='0 0 0 0 rgba(255,159,67,.4)';
         }
       } else {
@@ -3465,7 +3490,7 @@ async function loadData(){
     if(_e('plan-eff-bar')){
       _e('plan-eff-bar').style.width = Math.min(effPct,100)+'%';
       _e('plan-eff-bar').style.background = effPct>=100
-        ? 'linear-gradient(90deg,var(--success),#6ee7b7)'
+        ? 'linear-gradient(90deg,var(--success),#c4d9a0)'
         : 'linear-gradient(90deg,var(--danger),#ff8a8a)';
     }
     if(_e('plan-eff-pct')){
@@ -3519,7 +3544,7 @@ async function loadData(){
     })();
     (()=>{
       const pm=Number(ins.pct_more);
-      const col=pm<=0?'var(--success)':'#92400e';
+      const col=pm<=0?'var(--success)':'#8f3f26';
       const bg=pm<=0?'#f0fdf4':'#fff7ed';
       const txt=pm<=0?'เกินเป้า '+Math.abs(pm)+'%':'ต้องเพิ่ม '+pm+'%';
       document.querySelectorAll('.ins-pct-tag').forEach(t=>{
@@ -3588,7 +3613,7 @@ async function loadData(){
       const cv=document.getElementById('donut-c');
       if(!cv) return;
       const ex=Chart.getChart(cv); if(ex) ex.destroy();
-      new Chart(cv,{type:'doughnut',data:{datasets:[{data:[onQ-earlyQ,earlyQ,lateQ,pendQ],backgroundColor:['#2bc48a','#ea6c1a','#ee4b4b','#e2e8f0'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
+      new Chart(cv,{type:'doughnut',data:{datasets:[{data:[onQ-earlyQ,earlyQ,lateQ,pendQ],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
     })();
     if(_e('donut-ontime-cnt'))  _e('donut-ontime-cnt').textContent  = (onQ-earlyQ).toLocaleString();
     if(_e('donut-early-cnt'))   _e('donut-early-cnt').textContent   = earlyQ.toLocaleString();
@@ -3611,7 +3636,7 @@ async function loadData(){
       const _mx=Math.max(..._vv,1);
       document.getElementById('wd-cells').innerHTML=_ll.map((lbl,i)=>{
         const v=_vv[i],p=Math.round(v/_mx*100);
-        const bg=p>=80?'#2bc48a':p>=50?'#ea6c1a':p>=20?'#ff9f43':'#e2e8f0';
+        const bg=p>=80?'#7a8f4c':p>=50?'#b8593a':p>=20?'#c08a2e':'#e8dcc7';
         const tc=p>=20?'#fff':'var(--text2)';
         return `<div style="border-radius:7px;padding:9px 3px;text-align:center;background:${bg};color:${tc}"><div style="font-size:10px;opacity:.8">${lbl}</div><div style="font-size:14px;font-weight:700;margin-top:3px">${v}</div></div>`;
       }).join('');
@@ -3699,7 +3724,7 @@ async function manualRefresh(){
 async function exportPDF(){
   const pw=window.open('','_blank','width=1280,height=900');
   if(!pw){alert('กรุณาอนุญาต popup');return;}
-  pw.document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#1e2d4d;color:#a5b4fc;font-family:sans-serif"><div style="text-align:center"><div style="font-size:40px">📊</div><div style="margin-top:12px">กำลังเตรียม PDF...</div></div></body></html>');
+  pw.document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#3d2817;color:#e8b99b;font-family:sans-serif"><div style="text-align:center"><div style="font-size:40px">📊</div><div style="margin-top:12px">กำลังเตรียม PDF...</div></div></body></html>');
   pw.document.close();
   const active=document.querySelector('.tab.on');
   const activeName=active?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1]||'overview';
@@ -3785,6 +3810,9 @@ async function exportPDF(){
     const html=`<!DOCTYPE html><html><head>
   <link rel="icon" href="data:,"><meta charset="UTF-8">
 <title>SAT Migration Dashboard — HKT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 @page{size:A4 landscape;margin:8mm 10mm}
 *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box}
@@ -3815,10 +3843,10 @@ th,td{padding:3px 4px!important}
 #fpc-list .g2{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;page-break-inside:avoid;break-inside:avoid}
 #fpc-list .fpc{break-inside:avoid}
 </style></head><body>
-<div style="background:linear-gradient(135deg,#1e2d4d,#2d3f6b);color:#fff;padding:8px 14px;
+<div style="background:linear-gradient(135deg,#3d2817,#2d3f6b);color:#fff;padding:8px 14px;
   margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;
   -webkit-print-color-adjust:exact;print-color-adjust:exact;border-radius:8px">
-  <div style="font-size:14px;font-weight:700">📊 SAT Migration Dashboard — <span style="color:#a5b4fc">HKT</span></div>
+  <div style="font-size:14px;font-weight:700">📊 SAT Migration Dashboard — <span style="color:#e8b99b">HKT</span></div>
   <span style="font-size:10px;opacity:.8">${date}</span>
 </div>
 ${wrapper.outerHTML}
@@ -3845,8 +3873,8 @@ function buildUpcoming(){
   const thDow=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
   const thMo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const fmtD=s=>{const d=new Date(s+'T00:00:00');return `${thDow[d.getDay()]} ${d.getDate()} ${thMo[d.getMonth()]} ${(d.getFullYear()+543)%100}`;};
-  const FAB_C={'D1-041':'#ea6c1a','CFZ':'#2bc48a','T1-015':'#ff9f43','D1-091':'#a855f7','RFF':'#22b8cf','AMF':'#f76707','PPW':'#74c0fc'};
-  const CAT_S={'Switch':{bg:'#eff6ff',c:'#1d4ed8',icon:'🔀'},'AP':{bg:'#f0fdf4',c:'#15803d',icon:'📶'},'Infra':{bg:'#fff7ed',c:'#c2410c',icon:'⚡'}};
+  const FAB_C={'D1-041':'#b8593a','CFZ':'#7a8f4c','T1-015':'#c08a2e','D1-091':'#8b6f47','RFF':'#6b8599','AMF':'#c08a2e','PPW':'#c4a885'};
+  const CAT_S={'Switch':{bg:'#eff6ff',c:'#1d4ed8',icon:'🔀'},'AP':{bg:'#f0fdf4',c:'#15803d',icon:'📶'},'Infra':{bg:'#fff7ed',c:'#b8593a',icon:'⚡'}};
   if(!dates.length){
     wrap.innerHTML='<div style="padding:16px;color:var(--text2);font-size:12px;text-align:center">ไม่มีแผนการติดตั้งใน 2 สัปดาห์หน้า</div>';
     if(rangeEl) rangeEl.textContent='';
@@ -3861,7 +3889,7 @@ function buildUpcoming(){
     v.cats.forEach(c=>{if(catCnt[c]!==undefined) catCnt[c]+=v.rem;});
   }));
 
-  let html=`<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#f0f4ff,#f8faff)">
+  let html=`<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#f5ede0,#faf6ef)">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
       <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
         <div style="font-size:10px;color:var(--text2)">เหลือต้องติดตั้ง</div>
@@ -3891,7 +3919,7 @@ function buildUpcoming(){
     const dow=dt.getDay(); const isWkend=dow===0||dow===6;
     const dayRem=Object.values(fabs).reduce((a,v)=>a+v.rem,0);
     const dayQty=Object.values(fabs).reduce((a,v)=>a+v.qty,0);
-    const ac=isWkend?'#d97706':'#ea6c1a'; const abg=isWkend?'#fef3c7':'#eff6ff';
+    const ac=isWkend?'#c08a2e':'#b8593a'; const abg=isWkend?'#faefd4':'#eff6ff';
     html+=`<div class="card" style="margin-bottom:8px;border-left:4px solid ${ac};padding:12px 14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -3912,13 +3940,13 @@ function buildUpcoming(){
       <div style="display:flex;flex-direction:column;gap:7px">`;
     Object.entries(fabs).forEach(([fab,v])=>{
       const fc=FAB_C[fab]||'#888';
-      const typeChips=v.types.slice(0,4).map(t=>`<span style="font-size:10px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:6px">${t}</span>`).join('');
+      const typeChips=v.types.slice(0,4).map(t=>`<span style="font-size:10px;background:#f5ede0;color:#475569;padding:2px 8px;border-radius:6px">${t}</span>`).join('');
       const moreT=v.types.length>4?`<span style="font-size:10px;color:var(--text2)">+${v.types.length-4} อื่นๆ</span>`:'';
       const locChips=v.locs.slice(0,3).map(l=>`<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;border:1px solid #bbf7d0">📍 ${l}</span>`).join('');
       const moreL=v.locs.length>3?`<span style="font-size:10px;color:var(--text2)">+${v.locs.length-3}</span>`:'';
       const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${c}</span>`;}).join('');
       const pct=v.qty>0?Math.round((v.qty-v.rem)/v.qty*100):0;
-      html+=`<div style="background:#f8faff;border-radius:8px;padding:10px 12px">
+      html+=`<div style="background:#faf6ef;border-radius:8px;padding:10px 12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <div style="width:9px;height:9px;border-radius:50%;background:${fc};flex-shrink:0"></div>
