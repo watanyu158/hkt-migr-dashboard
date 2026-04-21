@@ -2566,7 +2566,9 @@ function buildOneFabChart(fab) {
     }
       },
       scales:{
-    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#9c8a74'},grid:{display:false}},
+    x:{stacked:true,ticks:{font:{size:9},maxRotation:45,color:'#9c8a74',
+       maxTicksLimit:9,autoSkip:true,
+       callback:(v,i)=>i%14===0?DAILY_L[i]:null},grid:{display:false}},
     y:{stacked:true,ticks:{font:{size:9},color:'#9c8a74',callback:v=>v>0?v:''},grid:{color:'#f5ede0'},min:0}
       }
     }
