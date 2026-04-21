@@ -354,10 +354,21 @@ function parseData() {
       finish_date:finishDate,
       pct_more:dailyRate>0?Math.round((reqRate/dailyRate-1)*100):0,
     },
-    daily:{
-      labels:dailyLabels, sw:[], ap:[], inf:[], plan:[],
-      cum_d:[], cum_sw:[], cum_ap:[], cum_inf:[]
-    },
+    daily:(()=>{
+      const sw=[],ap=[],inf=[],plan=[],cum_d=[],cum_sw=[],cum_ap=[],cum_inf=[];
+      let cSW=0,cAP=0,cINF=0,cD=0;
+      dailyLabels.forEach(lbl=>{
+        const[dd,mm]=lbl.split('/'); const k=`2026-${mm}-${dd}`;
+        const swV=daySwActMap[k]||0;
+        const apV=dayApActMap[k]||0;
+        const infV=(dayActMap[k]||0)-swV-apV;
+        const planV=dayPlanMap[k]||0;
+        sw.push(swV); ap.push(apV); inf.push(Math.max(0,infV)); plan.push(planV);
+        cSW+=swV; cAP+=apV; cINF+=Math.max(0,infV); cD+=swV+apV+Math.max(0,infV);
+        cum_sw.push(cSW); cum_ap.push(cAP); cum_inf.push(cINF); cum_d.push(cD);
+      });
+      return {labels:dailyLabels,sw,ap,inf,plan,cum_d,cum_sw,cum_ap,cum_inf};
+    })(),
     weekly:{
       labels:wkLabels, plan_all:planPct, act_all:actPct,
       plan_sw:planPct, act_sw:actPct, plan_ap:planPct, act_ap:actPct,
