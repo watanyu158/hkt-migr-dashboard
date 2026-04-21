@@ -2874,10 +2874,15 @@ function buildGraphs(){
   Object.keys(FAB_DAILY).forEach(fab => {
     const fd = FAB_DAILY[fab];
     const fabColor = FAB_COLORS[fab];
-    const total = (FAB_TOTALS[fab].sw + FAB_TOTALS[fab].ap + FAB_TOTALS[fab].inf);
+    // FAB_TOTALS อาจเป็น number หรือ object
+    const _ft = FAB_TOTALS[fab];
+    const total = typeof _ft==='number' ? _ft :
+                  (_ft ? (_ft.sw||0)+(_ft.ap||0)+(_ft.inf||0) : 0);
 
+    // skip ถ้า fd ไม่มี sw/ap/inf arrays (HKT format ต่างกัน)
+    if(!fd || !fd.sw || !Array.isArray(fd.sw)) return;
     // Only build chart if has any installs
-    const hasData = fd.sw.some(v=>v>0) || fd.ap.some(v=>v>0) || fd.inf.some(v=>v>0);
+    const hasData = fd.sw.some(v=>v>0) || (fd.ap||[]).some(v=>v>0) || (fd.inf||[]).some(v=>v>0);
 
     const div = document.createElement('div');
     div.className = 'card';
