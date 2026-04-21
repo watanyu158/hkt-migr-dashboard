@@ -2866,13 +2866,14 @@ function buildGraphs(){
   wrap.innerHTML = '';
   // Track all chart builds for export
   window._fabChartPromises = [];
-  Object.keys(FAB_DAILY).forEach(fab => {
-    const fd = FAB_DAILY[fab];
-    // ดึงข้อมูล SW/AP/Infra จาก FABRICS
-    const fabObj = FABRICS.find(f=>f.n===fab)||{sw:{t:0,d:0},ap:{t:0,d:0},inf:{t:0,d:0},d:0,t:0};
+  Object.keys(FAB_DAILY).length ? Object.keys(FAB_DAILY) : FABRICS.map(f=>f.n);
+  // iterate FABRICS ทั้งหมด (ไม่จำกัดแค่ FAB_DAILY)
+  FABRICS.forEach(fabObj => {
+    const fab = fabObj.n;
+    const fd = FAB_DAILY[fab] || {sw: new Array(DAILY_PROG_LABELS.length).fill(0), ap:[], inf:[]};
     const fabColor = FAB_COLORS[fab] || fabObj.c || '#b8593a';
 
-    // skip ถ้า fd ไม่มี sw/ap/inf arrays
+    // skip ถ้า fd ไม่มี sw arrays
     if(!fd || !fd.sw || !Array.isArray(fd.sw)) return;
     // Only build chart if has any installs
     const hasData = fd.sw.some(v=>v>0) || (fd.ap||[]).some(v=>v>0) || (fd.inf||[]).some(v=>v>0);
