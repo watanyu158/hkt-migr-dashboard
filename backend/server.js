@@ -417,14 +417,18 @@ function parseData() {
       return fdp;
     })(),
     fab_daily: (()=>{
+      // format: {siteName: {sw:[], ap:[], inf:[]}} indexed by dailyLabels
       const fd={};
-      Object.keys(dayActBySite).forEach(site=>{
-        fd[site]={};
-        const byDate=dayActBySite[site];
+      Object.keys(swInfSiteMap).forEach(site=>{
+        const actByDate=dayActBySite[site]||{};
+        const sw=[], ap=[], inf=[];
         dailyLabels.forEach(lbl=>{
           const[dd,mm]=lbl.split('/'); const k=`2026-${mm}-${dd}`;
-          if(byDate[k]) fd[site][lbl]=byDate[k];
+          sw.push(actByDate[k]||0);
+          ap.push(0);
+          inf.push(0);
         });
+        fd[site]={sw,ap,inf};
       });
       return fd;
     })(),
