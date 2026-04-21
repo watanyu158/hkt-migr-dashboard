@@ -209,6 +209,21 @@ function parseData() {
   // ── weekly ──
   const WK_MS = 7*86400000;
   const nWk = Math.ceil((PROJ_END - PROJ_START) / WK_MS) + 1;
+  const swInfTotal = TOTAL_SW + TOTAL_INF;
+
+  // คำนวณ SW+Infra plan per week ก่อน แล้วเอา AP มาเฉลี่ยตาม proportion
+  const wkSwInfPlan = [];
+  for (let w = 0; w < nWk; w++) {
+    const ws = new Date(PROJ_START.getTime() + w*WK_MS);
+    const we = new Date(ws.getTime() + 6*86400000);
+    let wp = 0;
+    for (let d=new Date(ws); d<=we; d.setDate(d.getDate()+1)) {
+      wp += dayPlanMap[isoDate(d)]||0;
+    }
+    wkSwInfPlan.push(wp);
+  }
+  const totalSwInfPlanSum = wkSwInfPlan.reduce((a,v)=>a+v, 0) || 1;
+
   const wkLabels = [], planPct = [], actPct = [];
   const wkBdPlan = [], wkBdAct = [];
   let wkCumPlan = 0, wkCumAct = 0;
@@ -216,32 +231,24 @@ function parseData() {
     const ws = new Date(PROJ_START.getTime() + w*WK_MS);
     const we = new Date(ws.getTime() + 6*86400000);
     wkLabels.push(`${fmtLbl(ws)}-${fmtLbl(we)}`);
-    let wp=0, wa=0;
+    let wa = 0;
     for (let d=new Date(ws); d<=we; d.setDate(d.getDate()+1)) {
-      const k = isoDate(d);
-      wp += dayPlanMap[k]||0;
-      wa += dayActMap[k]||0;
+      wa += dayActMap[isoDate(d)]||0;
     }
-    wkBdPlan.push(TOTAL - wkCumPlan);
+    // distribute AP plan proportional กับ SW+Infra plan
+    const swInfWp = wkSwInfPlan[w];
+    const apWp = TOTAL_AP * (swInfWp / totalSwInfPlanSum);
+    const wp = swInfWp + apWp;
+
+    wkBdPlan.push(Math.round(TOTAL - wkCumPlan));
     wkCumPlan += wp; wkCumAct += wa;
     planPct.push(Math.round(Math.min(wkCumPlan/TOTAL,1)*10000)/100);
     const inWkAct = lastActDt && we <= lastActDt;
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
     wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
-  // Rescale wkBdPlan ให้เริ่มที่ TOTAL และจบที่ 0
-  // โดย normalize จาก sw+inf plan (AP ไม่มี plan dates)
-  const swInfTotal = TOTAL_SW + TOTAL_INF;
-  if (wkBdPlan.length > 0 && swInfTotal > 0) {
-    const startVal = TOTAL; // burndown เริ่มที่ TOTAL จริง
-    wkBdPlan[0] = startVal;
-    for (let i = 1; i < wkBdPlan.length; i++) {
-      // scale จาก swInfTotal → TOTAL
-      const ratio = wkBdPlan[i] / swInfTotal;
-      wkBdPlan[i] = Math.max(0, Math.round(ratio * TOTAL));
-    }
-    wkBdPlan[wkBdPlan.length-1] = 0;
-  }
+  // Force ค่าสุดท้าย = 0
+  if (wkBdPlan.length > 0) wkBdPlan[wkBdPlan.length-1] = 0;
 
   // ── insight ──
   const daysToFinish = elapsed > 0 ? elapsed : 1;
