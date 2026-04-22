@@ -45,14 +45,19 @@ function parseData() {
     }
   }
 
-  // ── คำนวณ PROJ_START / PROJ_END จาก col T(19) ──
+  // ── คำนวณ PROJ_START / PROJ_END จาก col T(19)=เริ่ม, col V(21)=สิ้นสุด ──
   let PROJ_START = null, PROJ_END = null;
   for (let i = 2; i < hktRows.length; i++) {
     const r = hktRows[i]; if (!r) continue;
-    const d = toDate(r[19]);
-    if (!d) continue;
-    if (!PROJ_START || d < PROJ_START) PROJ_START = d;
-    if (!PROJ_END   || d > PROJ_END)   PROJ_END   = d;
+    const dStart = toDate(r[19]); // col T = วันที่เริ่ม
+    const dEnd   = toDate(r[21]); // col V = วันที่สิ้นสุด
+    if (dStart) {
+      if (!PROJ_START || dStart < PROJ_START) PROJ_START = dStart;
+      if (!PROJ_END   || dStart > PROJ_END)   PROJ_END   = dStart;
+    }
+    if (dEnd) {
+      if (!PROJ_END   || dEnd > PROJ_END)     PROJ_END   = dEnd;
+    }
   }
   if (!PROJ_START) PROJ_START = new Date();
   if (!PROJ_END)   PROJ_END   = new Date(PROJ_START.getTime() + 90*86400000);
@@ -96,8 +101,10 @@ function parseData() {
     let cat = r[18] ? String(r[18]).trim() : 'Infra';
     if (!['Switch','AP','Infra'].includes(cat)) cat = 'Infra';
 
-    const helperDt = toDate(r[19]);
+    const helperDt    = toDate(r[19]); // col T = วันที่เริ่ม
+    const helperEndDt = toDate(r[21]); // col V = วันที่สิ้นสุด
     let helperStr  = helperDt ? isoDate(helperDt) : null;
+    let helperEndStr = helperEndDt ? isoDate(helperEndDt) : helperStr;
     if (helperStr && helperStr < projStartStr) helperStr = projStartStr;
 
     const instDt2 = toDate(r[20]) || toDate(r[19]);
