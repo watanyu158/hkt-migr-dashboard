@@ -500,6 +500,44 @@ function parseData() {
     })(),
     fabrics, sites:fabrics, sw_inf_sites:swInfSites, ap_sites:apSites,
     types, hold_items:[],
+    upcoming: (()=>{
+      // แผนการติดตั้ง 2 สัปดาห์หน้า (14 วัน นับจากวันนี้)
+      const up = {};
+      const todayStr = today.toISOString().slice(0,10);
+      const end14 = new Date(today.getTime() + 14*86400000).toISOString().slice(0,10);
+
+      // loop ทุก row หา plan date ใน range วันนี้ - 14 วัน
+      let upSite = null;
+      for (let i = 2; i < hktRows.length; i++) {
+        const r = hktRows[i]; if (!r) continue;
+        if (r[0]) upSite = String(r[0]).trim();
+        if (!upSite) continue;
+        const qty  = typeof r[6]==='number' ? r[6] : 0;
+        if (qty <= 0) continue;
+        const cat  = r[18] ? String(r[18]).trim() : '';
+        if (cat === 'AP') continue;
+        const mig  = typeof r[15]==='number' ? r[15] : 0;
+        const hDt  = toDate(r[19]);
+        if (!hDt) continue;
+        const hStr = isoDate(hDt);
+        if (hStr < todayStr || hStr > end14) continue;
+
+        const dev = r[3] ? String(r[3]).slice(0,50) : 'อุปกรณ์';
+        if (!up[hStr]) up[hStr] = {};
+        if (!up[hStr][upSite]) up[hStr][upSite] = {qty:0, rem:0, cats:[], types:[], locs:new Set()};
+        up[hStr][upSite].qty += qty;
+        up[hStr][upSite].rem += Math.max(0, qty - mig);
+        if (!up[hStr][upSite].cats.includes(cat)) up[hStr][upSite].cats.push(cat);
+        if (!up[hStr][upSite].types.includes(dev)) up[hStr][upSite].types.push(dev);
+        if (r[1]) up[hStr][upSite].locs.add(String(r[1]).trim());
+      }
+
+      // convert Set to Array
+      Object.values(up).forEach(day =>
+        Object.values(day).forEach(v => { v.locs = [...v.locs]; })
+      );
+      return up;
+    })(),
   };
 }
 

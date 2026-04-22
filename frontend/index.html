@@ -3875,8 +3875,8 @@ function buildUpcoming(){
   const thDow=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'];
   const thMo=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
   const fmtD=s=>{const d=new Date(s+'T00:00:00');return `${thDow[d.getDay()]} ${d.getDate()} ${thMo[d.getMonth()]} ${(d.getFullYear()+543)%100}`;};
-  const FAB_C={'D1-041':'#b8593a','CFZ':'#7a8f4c','T1-015':'#c08a2e','D1-091':'#8b6f47','RFF':'#6b8599','AMF':'#c08a2e','PPW':'#c4a885'};
-  const CAT_S={'Switch':{bg:'#eff6ff',c:'#1d4ed8',icon:'🔀'},'AP':{bg:'#f0fdf4',c:'#15803d',icon:'📶'},'Infra':{bg:'#fff7ed',c:'#b8593a',icon:'⚡'}};
+  const CAT_S={'Switch':{bg:'#fbeade',c:'#b8593a',icon:'🔀'},'AP':{bg:'#edf0e0',c:'#7a8f4c',icon:'📶'},'Infra':{bg:'#faefd4',c:'#c08a2e',icon:'⚡'}};
+
   if(!dates.length){
     wrap.innerHTML='<div style="padding:16px;color:var(--text2);font-size:12px;text-align:center">ไม่มีแผนการติดตั้งใน 2 สัปดาห์หน้า</div>';
     if(rangeEl) rangeEl.textContent='';
@@ -3885,20 +3885,20 @@ function buildUpcoming(){
   if(rangeEl) rangeEl.textContent=`${fmtD(dates[0])} – ${fmtD(dates[dates.length-1])}`;
 
   // summary
-  let sumQty=0,sumRem=0; const fabSet=new Set(),catCnt={Switch:0,AP:0,Infra:0};
-  dates.forEach(d=>Object.entries(up[d]).forEach(([f,v])=>{
-    sumQty+=v.qty; sumRem+=v.rem; fabSet.add(f);
+  let sumQty=0,sumRem=0; const siteSet=new Set(),catCnt={Switch:0,AP:0,Infra:0};
+  dates.forEach(d=>Object.entries(up[d]).forEach(([s,v])=>{
+    sumQty+=v.qty; sumRem+=v.rem; siteSet.add(s);
     v.cats.forEach(c=>{if(catCnt[c]!==undefined) catCnt[c]+=v.rem;});
   }));
 
-  let html=`<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,#f5ede0,#faf6ef)">
+  let html=`<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,var(--primary-l),var(--bg-2))">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
+      <div style="background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
         <div style="font-size:10px;color:var(--text2)">เหลือต้องติดตั้ง</div>
         <div style="font-size:26px;font-weight:800;color:var(--primary);line-height:1.1">${sumRem}<span style="font-size:12px;font-weight:400;color:var(--text2)"> /${sumQty}</span></div>
         <div style="font-size:10px;color:var(--text2)">เครื่อง (รวม ${dates.length} วัน)</div>
       </div>
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
+      <div style="background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
         <div style="font-size:10px;color:var(--text2);margin-bottom:5px">ประเภทอุปกรณ์</div>
         ${Object.entries(catCnt).filter(([,v])=>v>0).map(([c,v])=>{
           const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};
@@ -3907,21 +3907,21 @@ function buildUpcoming(){
             <span style="font-size:11px;font-weight:700;color:${s.c}">${v}</span></div>`;
         }).join('')}
       </div>
-      <div style="background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #e0e7ff">
+      <div style="background:var(--card);border-radius:10px;padding:12px 14px;border:1px solid var(--border)">
         <div style="font-size:10px;color:var(--text2);margin-bottom:6px">สถานที่</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${[...fabSet].map(f=>`<span style="font-size:10px;font-weight:700;background:${FAB_C[f]||'#888'}22;color:${FAB_C[f]||'#888'};padding:2px 8px;border-radius:99px">${f}</span>`).join('')}
+          ${[...siteSet].map((s,i)=>{const col=FABRICS[i%FABRICS.length]?.c||'#888';return `<span style="font-size:10px;font-weight:700;background:${col}22;color:${col};padding:2px 8px;border-radius:99px">${s}</span>`;}).join('')}
         </div>
       </div>
     </div>
   </div>`;
 
   dates.forEach(d=>{
-    const fabs=up[d]; const dt=new Date(d+'T00:00:00');
+    const sites=up[d]; const dt=new Date(d+'T00:00:00');
     const dow=dt.getDay(); const isWkend=dow===0||dow===6;
-    const dayRem=Object.values(fabs).reduce((a,v)=>a+v.rem,0);
-    const dayQty=Object.values(fabs).reduce((a,v)=>a+v.qty,0);
-    const ac=isWkend?'#c08a2e':'#b8593a'; const abg=isWkend?'#faefd4':'#eff6ff';
+    const dayRem=Object.values(sites).reduce((a,v)=>a+v.rem,0);
+    const dayQty=Object.values(sites).reduce((a,v)=>a+v.qty,0);
+    const ac=isWkend?'#c08a2e':'#b8593a'; const abg=isWkend?'#faefd4':'#fbeade';
     html+=`<div class="card" style="margin-bottom:8px;border-left:4px solid ${ac};padding:12px 14px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:10px">
@@ -3940,19 +3940,21 @@ function buildUpcoming(){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:7px">`;
-    Object.entries(fabs).forEach(([fab,v])=>{
-      const fc=FAB_C[fab]||'#888';
-      const typeChips=v.types.slice(0,4).map(t=>`<span style="font-size:10px;background:#f5ede0;color:#475569;padding:2px 8px;border-radius:6px">${t}</span>`).join('');
-      const moreT=v.types.length>4?`<span style="font-size:10px;color:var(--text2)">+${v.types.length-4} อื่นๆ</span>`:'';
-      const locChips=v.locs.slice(0,3).map(l=>`<span style="font-size:10px;background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;border:1px solid #bbf7d0">📍 ${l}</span>`).join('');
-      const moreL=v.locs.length>3?`<span style="font-size:10px;color:var(--text2)">+${v.locs.length-3}</span>`:'';
-      const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${c}</span>`;}).join('');
+
+    Object.entries(sites).forEach(([site,v])=>{
+      const fabObj=FABRICS.find(f=>f.n===site)||{c:'#888'};
+      const fc=fabObj.c;
+      const typeChips=v.types.slice(0,3).map(t=>`<span style="font-size:10px;background:var(--bg-2);color:var(--text2);padding:2px 8px;border-radius:6px">${t}</span>`).join('');
+      const moreT=v.types.length>3?`<span style="font-size:10px;color:var(--text2)">+${v.types.length-3} อื่นๆ</span>`:'';
+      const locChips=(v.locs||[]).slice(0,3).map(l=>`<span style="font-size:10px;background:var(--success-l);color:var(--success);padding:2px 8px;border-radius:6px;border:1px solid #c4d9a0">📍 ${l}</span>`).join('');
+      const moreL=(v.locs||[]).length>3?`<span style="font-size:10px;color:var(--text2)">+${v.locs.length-3}</span>`:'';
+      const catBadges=[...new Set(v.cats)].map(c=>{const s=CAT_S[c]||{bg:'#f5f5f5',c:'#666',icon:'📦'};return `<span style="font-size:10px;background:${s.bg};color:${s.c};padding:2px 8px;border-radius:99px;font-weight:600">${s.icon} ${c}</span>`;}).join('');
       const pct=v.qty>0?Math.round((v.qty-v.rem)/v.qty*100):0;
-      html+=`<div style="background:#faf6ef;border-radius:8px;padding:10px 12px">
+      html+=`<div style="background:var(--bg);border-radius:8px;padding:10px 12px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <div style="width:9px;height:9px;border-radius:50%;background:${fc};flex-shrink:0"></div>
-            <span style="font-size:13px;font-weight:700;color:${fc}">${fab}</span>
+            <span style="font-size:13px;font-weight:700;color:${fc}">${site}</span>
             ${catBadges}
             ${pct>0?`<span style="font-size:10px;color:var(--success);font-weight:600">✓ ${pct}%</span>`:''}
           </div>
@@ -3962,13 +3964,14 @@ function buildUpcoming(){
           </div>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">${typeChips}${moreT}</div>
-        ${v.locs.length?`<div style="display:flex;flex-wrap:wrap;gap:4px">${locChips}${moreL}</div>`:''}
+        ${(v.locs||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:4px">${locChips}${moreL}</div>`:''}
       </div>`;
     });
     html+='</div></div>';
   });
   wrap.innerHTML=html;
 }
+
 </script>
 </body>
 </html>
