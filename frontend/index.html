@@ -1581,16 +1581,13 @@ function buildVelocityChart(){
     return Math.max(0, sw+ap);
   });
 
-  // ใช้ weekly actual จาก DAILY_L/DAILY_SW/DAILY_AP แทน — นับตาม WK bounds
-  const WK_BOUNDS_MS = [
-    ['2026-02-09','2026-02-15'],['2026-02-16','2026-02-22'],['2026-02-23','2026-03-01'],
-    ['2026-03-02','2026-03-08'],['2026-03-09','2026-03-15'],['2026-03-16','2026-03-22'],
-    ['2026-03-23','2026-03-29'],['2026-03-30','2026-04-05'],['2026-04-06','2026-04-12'],
-    ['2026-04-13','2026-04-19'],['2026-04-20','2026-04-26'],['2026-04-27','2026-05-03'],
-    ['2026-05-04','2026-05-10'],['2026-05-11','2026-05-17'],['2026-05-18','2026-05-24'],
-    ['2026-05-25','2026-05-31'],['2026-06-01','2026-06-08'],['2026-06-09','2026-06-15'],
-    ['2026-06-16','2026-06-22'],['2026-06-23','2026-06-29'],
-  ].map(([s,e])=>[new Date(s+'T00:00:00').getTime(), new Date(e+'T00:00:00').getTime()]);
+  // ใช้ weekly actual จาก DAILY_L/DAILY_SW/DAILY_AP — คำนวณ WK bounds dynamic จาก PROJ_START
+  const _projStartMs = window._projStartStr ? new Date(window._projStartStr+'T00:00:00').getTime() : new Date('2026-02-09T00:00:00').getTime();
+  const WK_BOUNDS_MS = WK.map((_,i)=>{
+    const ws = _projStartMs + i*7*86400000;
+    const we = ws + 6*86400000;
+    return [ws, we];
+  });
 
   const wkSW2  = new Array(N_WK).fill(0);
   const wkAP2  = new Array(N_WK).fill(0);
@@ -1616,14 +1613,10 @@ function buildVelocityChart(){
   const sliceAP  = wkAP2.slice(startWk, endWk+1);
   const sliceTot = sliceSW.map((v,i)=>v+sliceAP[i]+(wkInf2[startWk+i]||0));
 
-  // Labels: "W7\n09/02-15/02"
-  const WK_DATE_RANGES = [
-    '09/02-15/02','16/02-22/02','23/02-01/03','02/03-08/03','09/03-15/03',
-    '16/03-22/03','23/03-29/03','30/03-05/04','06/04-12/04','13/04-19/04',
-    '20/04-26/04','27/04-03/05','04/05-10/05','11/05-17/05','18/05-24/05',
-    '25/05-31/05','01/06-08/06','09/06-15/06','16/06-22/06','23/06-29/06',
-  ];
-  const WK_NAMES = WK.map((_,i)=>`W${i+7}`);
+  // Labels: dynamic จาก WK bounds
+  const _fmt2=(ts)=>{const d=new Date(ts);return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;};
+  const WK_DATE_RANGES = WK_BOUNDS_MS.map(([s,e])=>`${_fmt2(s)}-${_fmt2(e)}`);
+  const WK_NAMES = WK.map((_,i)=>`W${i+1}`);
   const sliceLabels = sliceTot.map((_,i)=>{
     const wi=startWk+i;
     return WK_NAMES[wi];
@@ -1707,15 +1700,13 @@ function buildFabGap(){
   const ex=Chart.getChart(cv); if(ex) ex.destroy();
 
   const wkIdx=Math.max(0,TODAY_WK-1);
-  const WK_BOUNDS_ARR=[
-    ['2026-02-09','2026-02-15'],['2026-02-16','2026-02-22'],['2026-02-23','2026-03-01'],
-    ['2026-03-02','2026-03-08'],['2026-03-09','2026-03-15'],['2026-03-16','2026-03-22'],
-    ['2026-03-23','2026-03-29'],['2026-03-30','2026-04-05'],['2026-04-06','2026-04-12'],
-    ['2026-04-13','2026-04-19'],['2026-04-20','2026-04-26'],['2026-04-27','2026-05-03'],
-    ['2026-05-04','2026-05-10'],['2026-05-11','2026-05-17'],['2026-05-18','2026-05-24'],
-    ['2026-05-25','2026-05-31'],['2026-06-01','2026-06-08'],['2026-06-09','2026-06-15'],
-    ['2026-06-16','2026-06-22'],['2026-06-23','2026-06-29'],
-  ];
+  const _ps2 = window._projStartStr ? new Date(window._projStartStr+'T00:00:00') : new Date('2026-02-09T00:00:00');
+  const _isoD=(d)=>d.toISOString().slice(0,10);
+  const WK_BOUNDS_ARR = WK.map((_,i)=>{
+    const ws=new Date(_ps2.getTime()+i*7*86400000);
+    const we=new Date(ws.getTime()+6*86400000);
+    return [_isoD(ws), _isoD(we)];
+  });
   const [wkS,wkE]=WK_BOUNDS_ARR[wkIdx]||WK_BOUNDS_ARR[0];
   const wkStart=new Date(wkS+'T00:00:00'), wkEnd=new Date(wkE+'T00:00:00');
   const fmtD=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
@@ -1807,15 +1798,13 @@ function buildWeekdayChart(){
 
   // ใช้ wkIdx เดียวกับ buildFabGap
   const wkIdx=Math.max(0,TODAY_WK-1);
-  const WK_BOUNDS_ARR=[
-    ['2026-02-09','2026-02-15'],['2026-02-16','2026-02-22'],['2026-02-23','2026-03-01'],
-    ['2026-03-02','2026-03-08'],['2026-03-09','2026-03-15'],['2026-03-16','2026-03-22'],
-    ['2026-03-23','2026-03-29'],['2026-03-30','2026-04-05'],['2026-04-06','2026-04-12'],
-    ['2026-04-13','2026-04-19'],['2026-04-20','2026-04-26'],['2026-04-27','2026-05-03'],
-    ['2026-05-04','2026-05-10'],['2026-05-11','2026-05-17'],['2026-05-18','2026-05-24'],
-    ['2026-05-25','2026-05-31'],['2026-06-01','2026-06-08'],['2026-06-09','2026-06-15'],
-    ['2026-06-16','2026-06-22'],['2026-06-23','2026-06-29'],
-  ];
+  const _ps2 = window._projStartStr ? new Date(window._projStartStr+'T00:00:00') : new Date('2026-02-09T00:00:00');
+  const _isoD=(d)=>d.toISOString().slice(0,10);
+  const WK_BOUNDS_ARR = WK.map((_,i)=>{
+    const ws=new Date(_ps2.getTime()+i*7*86400000);
+    const we=new Date(ws.getTime()+6*86400000);
+    return [_isoD(ws), _isoD(we)];
+  });
   const [wkS,wkE]=WK_BOUNDS_ARR[wkIdx]||WK_BOUNDS_ARR[0];
   const wkStart=new Date(wkS+'T00:00:00'), wkEnd=new Date(wkE+'T00:00:00');
   const fmtD=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
