@@ -23,6 +23,13 @@ function fmtLbl(d) {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
+const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function fmtLbl2(isoStr) {
+  if (!isoStr) return '–';
+  const d = new Date(isoStr+'T00:00:00');
+  return `${d.getDate()} ${thMonths[d.getMonth()]} ${(d.getFullYear()+543)%100}`;
+}
+
 function parseData() {
   const wb = XLSX.readFile(EXCEL_PATH);
 
@@ -114,8 +121,17 @@ function parseData() {
     if (!device || !curSite || qty <= 0) continue;
     const site = curSite;
 
-    if (!siteMap[site]) siteMap[site] = {total:0, done:0, inp:0};
+    if (!siteMap[site]) siteMap[site] = {total:0, done:0, inp:0, start:null, end:null};
     if (!swInfSiteMap[site]) swInfSiteMap[site] = {sw_t:0, sw_d:0, inf_t:0, inf_d:0};
+
+    // track start/end date per site
+    if (helperStr) {
+      if (!siteMap[site].start || helperStr < siteMap[site].start) siteMap[site].start = helperStr;
+      if (!siteMap[site].end   || helperStr > siteMap[site].end)   siteMap[site].end   = helperStr;
+    }
+    if (helperEndStr) {
+      if (!siteMap[site].end   || helperEndStr > siteMap[site].end) siteMap[site].end = helperEndStr;
+    }
 
     if (cat !== 'AP') {
       if (cat === 'Switch') { TOTAL_SW += qty; swInfSiteMap[site].sw_t += qty; }
@@ -307,7 +323,9 @@ function parseData() {
     .sort((a,b) => (b[1].done/b[1].total||0) - (a[1].done/a[1].total||0))
     .map(([n,v],i) => ({
       n, t:v.total, d:v.done, p:Math.round(v.done/v.total*1000)/10,
-      h:0, r:v.total-v.done, c:COLORS[i%COLORS.length], s:'–', e:'–',
+      h:0, r:v.total-v.done, c:COLORS[i%COLORS.length],
+      s: v.start ? fmtLbl2(v.start) : '–',
+      e: v.end   ? fmtLbl2(v.end)   : '–',
       sw:{t:swInfSiteMap[n]?.sw_t||0, d:swInfSiteMap[n]?.sw_d||0},
       ap:{t:0, d:0},
       inf:{t:swInfSiteMap[n]?.inf_t||0, d:swInfSiteMap[n]?.inf_d||0},
