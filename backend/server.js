@@ -278,8 +278,9 @@ function parseData() {
   // ── locations: site → room ──
   const locationMap = {};
   let locSite = null;
-  for (let i = 2; i < rows.length; i++) {
-    const r = rows[i];
+  for (let i = 2; i < hktRows.length; i++) {
+    const r = hktRows[i];
+    if (!r) continue;
     if (r[0]) locSite = String(r[0]).trim();
     if (!locSite) continue;
     const room = r[1] ? String(r[1]).trim() : '(ไม่ระบุห้อง)';
