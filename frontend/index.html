@@ -1213,36 +1213,37 @@ main { padding: 12px 10px; }
 <!-- ════ TAB: แผนงาน ════ -->
 <div class="tab-body" id="tab-plan" style="display:none">
   <div style="background:linear-gradient(90deg,var(--primary-l),var(--hold-l));border-radius:var(--rsm);padding:9px 13px;display:flex;align-items:center;gap:7px;margin-bottom:13px;font-size:13px;font-weight:600;color:var(--primary)">📅 การวางแผนโครงการ</div>
-  <div class="g3" style="margin-bottom:14px">
-    <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📅 ระยะเวลาโครงการ</div>
-      <div class="g2" style="gap:7px">
-        <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v" id="pc-proj-start">–</div></div>
-        <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v" id="pc-proj-end">–</div></div>
-        <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v" id="plan-proj-days">133 วัน</div></div>
-        <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red" id="plan-days-left">– วัน</div></div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="g2" style="grid-template-columns:1fr 1fr;gap:14px;align-content:start">
+      <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📅 ระยะเวลาโครงการ</div>
+        <div class="g2" style="gap:7px">
+          <div class="pcard"><div class="pc-l">วันเริ่มต้น</div><div class="pc-v" id="pc-proj-start">–</div></div>
+          <div class="pcard"><div class="pc-l">วันสิ้นสุด</div><div class="pc-v" id="pc-proj-end">–</div></div>
+          <div class="pcard"><div class="pc-l">จำนวนวันทั้งหมด</div><div class="pc-v" id="plan-proj-days">– วัน</div></div>
+          <div class="pcard"><div class="pc-l">วันที่เหลือ</div><div class="pc-v red" id="plan-days-left">– วัน</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📈 เป้าหมายตามแผน</div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายอุปกรณ์/วัน</div><div class="pc-v" id="plan-target-rate">– อุปกรณ์/วัน</div></div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายปัจจุบัน</div><div class="pc-v red" id="plan-req-rate">– อุปกรณ์/วัน</div></div>
+        <div class="pcard"><div class="pc-l">อุปกรณ์ที่เหลือ</div><div class="pc-v" id="plan-remaining">– อุปกรณ์</div></div>
       </div>
     </div>
-    <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">📈 เป้าหมายตามแผน</div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายอุปกรณ์/วัน</div><div class="pc-v" id="plan-target-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เป้าหมายปัจจุบัน</div><div class="pc-v red" id="plan-req-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard"><div class="pc-l">อุปกรณ์ที่เหลือ</div><div class="pc-v" id="plan-remaining">– อุปกรณ์</div></div>
+    <div class="g2" style="grid-template-columns:1fr 1fr;gap:14px;align-content:start">
+      <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v" id="plan-plan-pct">–%</div></div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f5ede0;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
+        <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red" id="plan-status">–</div></div>
+      </div>
+      <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">⚡ ข้อมูลการติดตั้งจริง</div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ติดตั้งแล้ว</div><div class="pc-v" id="plan-installed">– อุปกรณ์</div></div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">เฉลี่ย/วัน</div><div class="pc-v" id="plan-daily-rate">– อุปกรณ์/วัน</div></div>
+        <div class="pcard" style="margin-bottom:7px"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" id="plan-finish-date">–</div></div>
+        <div style="font-size:11px;color:var(--text2);margin:6px 0 4px">ประสิทธิภาพ:</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="font-size:11px;color:var(--text2)" id="plan-eff-label">–/วัน</span><div style="flex:1;height:8px;background:#f5ede0;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:11px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
+        <div style="text-align:right;font-size:10px;margin-top:2px" id="plan-eff-status">⚠ ต่ำกว่าเป้าหมาย</div>
+      </div>
     </div>
-    <div class="card"><div class="ch" style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:9px">✅ การประเมินโครงการ</div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าตามแผน</div><div class="pc-v" id="plan-plan-pct">–%</div></div>
-      <div class="pcard" style="margin-bottom:7px"><div class="pc-l">ความคืบหน้าปัจจุบัน</div><div class="pc-v grn" id="plan-act-pct">–%</div><div style="height:5px;background:#f5ede0;border-radius:99px;margin-top:5px;overflow:hidden"><div id="plan-act-bar" style="height:100%;width:0%;background:var(--success);border-radius:99px"></div></div></div>
-      <div class="pcard"><div class="pc-l">สถานะ</div><div class="pc-v red" id="plan-status">–</div></div>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:14px">
-    <div class="ch"><div class="chi" style="background:var(--success-l);color:var(--success)">⚡</div>ข้อมูลการติดตั้งจริง</div>
-    <div class="g3" style="margin-bottom:11px">
-      <div class="pcard"><div class="pc-l">อุปกรณ์ที่ติดตั้งแล้วจริง</div><div class="pc-v" style="font-size:20px" id="plan-installed">– อุปกรณ์</div></div>
-      <div class="pcard"><div class="pc-l">เฉลี่ยที่ทำได้/วัน</div><div class="pc-v" style="font-size:20px" id="plan-daily-rate">– อุปกรณ์/วัน</div></div>
-      <div class="pcard"><div class="pc-l">คาดว่าจะเสร็จ</div><div class="pc-v red" style="font-size:20px" id="plan-finish-date">–</div></div>
-    </div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:5px">ประสิทธิภาพเทียบกับแผน:</div>
-    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:12px;color:var(--text2);white-space:nowrap" id="plan-eff-label">ทำได้ –/วัน</span><div style="flex:1;height:11px;background:#f5ede0;border-radius:99px;overflow:hidden"><div id="plan-eff-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--danger),#ff8a8a);border-radius:99px"></div></div><span style="font-size:12px;font-weight:700;color:var(--danger)" id="plan-eff-pct">–%</span></div>
-    <div style="text-align:right;font-size:11px;margin-top:3px" id="plan-eff-status">⚠ ต่ำกว่าเป้าหมาย</div>
   </div>
   <div id="fpc-list"></div>
 
@@ -3501,9 +3502,10 @@ async function loadData(){
       _e('plan-eff-status').textContent = effPct>=100?'✅ เกินเป้าหมาย':'⚠ ต่ำกว่าเป้าหมาย';
       _e('plan-eff-status').style.color = effPct>=100?'var(--success)':'var(--danger)';
     }
-    // plan target rate = TOTAL / proj_days (133 วัน)
-    const projDays = 133;
+    // plan target rate = TOTAL / proj_days (dynamic)
+    const projDays = Math.round((new Date(meta.proj_end+'T00:00:00') - new Date(meta.proj_start+'T00:00:00')) / 86400000) || 133;
     const targetRate = (meta.total / projDays).toFixed(1);
+    if(_e('plan-proj-days'))    _e('plan-proj-days').textContent    = projDays+' วัน';
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
