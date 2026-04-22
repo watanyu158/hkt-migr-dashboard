@@ -275,6 +275,23 @@ function parseData() {
   const daysEarly   = finishDateObj ? Math.round((PROJ_END - finishDateObj) / 86400000) : 0;
   const daysLateAdj = daysEarly < 0 ? Math.abs(daysEarly) : 0;
 
+  // ── locations: site → room ──
+  const locationMap = {};
+  let locSite = null;
+  for (let i = 2; i < rows.length; i++) {
+    const r = rows[i];
+    if (r[0]) locSite = String(r[0]).trim();
+    if (!locSite) continue;
+    const room = r[1] ? String(r[1]).trim() : '(ไม่ระบุห้อง)';
+    const qty  = typeof r[6]==='number' ? r[6] : 0;
+    const mig  = typeof r[15]==='number' ? r[15] : 0;
+    if (qty <= 0) continue;
+    if (!locationMap[locSite]) locationMap[locSite] = {};
+    if (!locationMap[locSite][room]) locationMap[locSite][room] = {t:0, d:0};
+    locationMap[locSite][room].t += qty;
+    locationMap[locSite][room].d += mig;
+  }
+
   // ── fabrics / sites ──
   const COLORS = ['#f97316','#0ea5e9','#10b981','#a855f7','#f43f5e','#eab308','#06b6d4'];
   const fabrics = Object.entries(siteMap)
@@ -410,6 +427,17 @@ function parseData() {
         return fab;
       })(),
     },
+    locations: Object.fromEntries(
+      Object.entries(locationMap).map(([site, rooms]) => [
+        site,
+        Object.entries(rooms).map(([room, v]) => ({
+          l: room,
+          t: v.t,
+          d: v.d,
+          p: v.t > 0 ? Math.round(v.d/v.t*100) : 0,
+        }))
+      ])
+    ),
     fab_colors:{},
     fab_plan_totals:{},
     fab_totals: Object.fromEntries(

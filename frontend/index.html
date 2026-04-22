@@ -2906,38 +2906,43 @@ function buildGraphs(){
 // ── LOCATION LIST ─────────────────────────────────────────────────────────────
 function buildLocList(){
   const w=document.getElementById('loc-list');
-  w.innerHTML=Object.entries(LOC_DATA).map(([fab,locs])=>{
-    const f=FABRICS.find(x=>x.n===fab)||{c:'var(--primary)'};
-    const td=locs.reduce((a,l)=>a+l.d,0), tt=locs.reduce((a,l)=>a+l.t,0);
-    const tp=tt>0?Math.round(td/tt*100):0;
-    const _pb=['T1-015','AMF'].includes(fab)?'page-break-before:always;break-before:page;':'';
+  if(!w) return;
+  const COLORS=['#b8593a','#7a8f4c','#c08a2e','#8b6f47','#6b8599','#d98967','#a8452e'];
+  const entries=Object.entries(LOC_DATA);
+  if(!entries.length){ w.innerHTML='<div style="color:var(--text3);padding:12px">ไม่มีข้อมูล</div>'; return; }
 
-    const sorted=[...locs].sort((a,b)=>{
+  w.innerHTML=entries.map(([site,rooms],si)=>{
+    const col=COLORS[si%COLORS.length];
+    const fab=FABRICS.find(f=>f.n===site);
+    const td=rooms.reduce((a,r)=>a+r.d,0), tt=rooms.reduce((a,r)=>a+r.t,0);
+    const tp=tt>0?Math.round(td/tt*100):0;
+    const tpC=tp>=80?'#556b35':tp>=30?'#8f3f26':'#a8452e';
+
+    const sorted=[...rooms].sort((a,b)=>{
       const pa=Math.min(a.p,100), pb=Math.min(b.p,100);
       if(pa===100&&pb!==100) return -1;
       if(pb===100&&pa!==100) return 1;
       return pb-pa;
     });
 
-    const rows=sorted.map(l=>{
-      const pc=Math.min(l.p,100);
-      const done=(pc>=100);
-      const bc=done?'#22c55e':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
-      const pctC=done?'#7a8f4c':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
-      const rowBg=done?'background:#f0fdf4;border-left:3px solid #22c55e;':'border-left:3px solid transparent;';
-      const badge=done?'<span style="font-size:10px;font-weight:700;background:#bbf7d0;color:#166534;padding:1px 7px;border-radius:99px;margin-left:6px;flex-shrink:0">✓ 100%</span>':'';
+    const rows=sorted.map(r=>{
+      const pc=Math.min(r.p,100);
+      const done=pc>=100;
+      const bc=done?'#7a8f4c':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
+      const pctC=done?'#556b35':pc>=80?'var(--success)':pc>=30?'var(--warning)':'var(--danger)';
+      const rowBg=done?'background:var(--success-l);border-left:3px solid #7a8f4c;':'border-left:3px solid transparent;';
+      const badge=done?'<span style="font-size:10px;font-weight:700;background:#edf0e0;color:#556b35;padding:1px 7px;border-radius:99px;margin-left:6px;flex-shrink:0">✓ 100%</span>':'';
       return '<div class="locrow" style="'+rowBg+'">'
         +'<div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">'
-          +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="'+(done?'#22c55e':f.c)+'" stroke-width="2.5">'
-            +'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>'
-            +'<circle cx="12" cy="10" r="3"/>'
+          +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="'+(done?'#7a8f4c':col)+'" stroke-width="2.5">'
+            +'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>'
           +'</svg>'
-          +'<span class="locname" style="'+(done?'color:#166534;':'')+'">'+l.l+'</span>'
+          +'<span class="locname" style="'+(done?'color:#556b35;':'')+'">'+(r.l||'–')+'</span>'
           +badge
         +'</div>'
         +'<div class="loci">'
           +'<div class="locc">'
-            +'<span style="font-weight:700;color:var(--text)">'+l.d+'/'+l.t+'</span>'
+            +'<span style="font-weight:700;color:var(--text)">'+r.d+'/'+r.t+'</span>'
             +' <span style="font-weight:800;color:'+pctC+'">('+pc+'%)</span>'
           +'</div>'
           +'<div class="locbar"><div class="locfill" style="width:'+pc+'%;background:'+bc+'"></div></div>'
@@ -2945,15 +2950,15 @@ function buildLocList(){
       +'</div>';
     }).join('');
 
-    return '<div class="fg" style="'+_pb+'">'
+    return '<div class="fg">'
       +'<div class="fgh" onclick="togFab(this)">'
-        +'<div style="display:flex;align-items:center;gap:7px">'
-          +'<div style="width:10px;height:10px;border-radius:50%;background:'+f.c+'"></div>'
-          +'<span style="font-size:14px;font-weight:700">'+fab+'</span>'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<div style="width:10px;height:10px;border-radius:50%;background:'+col+';flex-shrink:0"></div>'
+          +'<span style="font-size:14px;font-weight:700;color:var(--text)">'+site+'</span>'
         +'</div>'
-        +'<div style="display:flex;align-items:center;gap:7px">'
-          +'<span style="font-size:12px;color:var(--text2);font-weight:600">'+td+'/'+tt+'</span>'
-          +'<span style="font-size:13px;font-weight:800;color:'+(tp>=80?'var(--success)':tp>=30?'var(--warning)':'var(--danger)')+'">'+tp+'%</span>'
+        +'<div style="display:flex;align-items:center;gap:8px">'
+          +'<span style="font-size:12px;color:var(--text2);font-weight:600">'+td+'/'+tt+' เครื่อง</span>'
+          +'<span style="font-size:13px;font-weight:800;color:'+tpC+'">'+tp+'%</span>'
           +'<span class="fg-arrow">›</span>'
         +'</div>'
       +'</div>'
