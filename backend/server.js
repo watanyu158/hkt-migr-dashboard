@@ -283,10 +283,11 @@ function parseData() {
     planPct.push(Math.round(Math.min(wkCumPlan/TOTAL,1)*10000)/100);
     const inWkAct = lastActDt && we <= lastActDt;
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
-    // bd_act ใช้ totalInstalled (SW+Infra+AP) สำหรับ week สุดท้ายที่มีข้อมูล
-    const isLastActWk = inWkAct && (w===nWk-1 || !(lastActDt && new Date(PROJ_START.getTime()+(w+1)*WK_MS) <= lastActDt));
-    wkBdAct.push(inWkAct ? (isLastActWk ? TOTAL - totalInstalled : TOTAL - wkCumAct) : null);
+    wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
+  // แก้ค่าสุดท้ายของ bd_act ให้ใช้ totalInstalled (รวม AP)
+  const lastActIdx = wkBdAct.reduce((a,v,i)=>v!=null?i:a,-1);
+  if (lastActIdx >= 0) wkBdAct[lastActIdx] = TOTAL - totalInstalled;
   // สร้าง bd_plan ใหม่ linear จาก TOTAL → 0
   for (let i = 0; i < wkBdPlan.length; i++) {
     wkBdPlan[i] = Math.round(TOTAL * (1 - i/(wkBdPlan.length-1)));
