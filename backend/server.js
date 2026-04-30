@@ -195,6 +195,11 @@ function parseData() {
     if (mig > 0) {
       instAP += mig;
       apSiteMap[apCurSite||''].done += mig;
+      // populate dayApActMap — ใช้ lastInstallDate เป็น proxy วันติดตั้ง AP
+      if (lastInstallDate) {
+        dayApActMap[lastInstallDate] = (dayApActMap[lastInstallDate]||0) + mig;
+        dayActMap[lastInstallDate]   = (dayActMap[lastInstallDate]||0) + mig;
+      }
     }
   }
 
