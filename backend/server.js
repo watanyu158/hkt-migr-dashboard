@@ -281,13 +281,29 @@ function parseData() {
     wkBdPlan.push(Math.round(TOTAL - wkCumPlan));
     wkCumPlan += wp; wkCumAct += wa;
     planPct.push(Math.round(Math.min(wkCumPlan/TOTAL,1)*10000)/100);
-    const inWkAct = lastActDt && ws <= lastActDt;
+    const inWkAct = lastActDt && we <= lastActDt;
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
     wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
-  // แก้ค่าสุดท้ายของ bd_act ให้ใช้ totalInstalled (รวม AP)
-  const lastActIdx = wkBdAct.reduce((a,v,i)=>v!=null?i:a,-1);
-  if (lastActIdx >= 0) wkBdAct[lastActIdx] = TOTAL - totalInstalled;
+  // หา week ที่ lastInstallDate ตกอยู่ แล้วใส่ TOTAL-totalInstalled ที่ week นั้น
+  if (lastActDt) {
+    let targetIdx = -1;
+    for (let w = 0; w < nWk; w++) {
+      const ws2 = new Date(PROJ_START.getTime() + w*WK_MS);
+      const we2 = new Date(ws2.getTime() + 6*86400000);
+      if (lastActDt >= ws2 && lastActDt <= we2) { targetIdx = w; break; }
+    }
+    // ถ้าไม่เจอ (เกิน week สุดท้าย) ใช้ week สุดท้ายที่มีข้อมูล
+    if (targetIdx < 0) targetIdx = wkBdAct.reduce((a,v,i)=>v!=null?i:a,-1);
+    if (targetIdx >= 0) {
+      wkBdAct[targetIdx] = TOTAL - totalInstalled;
+      // week ก่อนหน้าที่ยังเป็น null ให้ carry forward ค่าก่อนหน้า
+      for (let w = targetIdx-1; w >= 0; w--) {
+        if (wkBdAct[w] === null) wkBdAct[w] = wkBdAct[w+1];
+        else break;
+      }
+    }
+  }
   // สร้าง bd_plan ใหม่ linear จาก TOTAL → 0
   for (let i = 0; i < wkBdPlan.length; i++) {
     wkBdPlan[i] = Math.round(TOTAL * (1 - i/(wkBdPlan.length-1)));
