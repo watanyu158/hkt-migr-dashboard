@@ -281,7 +281,7 @@ function parseData() {
     wkBdPlan.push(Math.round(TOTAL - wkCumPlan));
     wkCumPlan += wp; wkCumAct += wa;
     planPct.push(Math.round(Math.min(wkCumPlan/TOTAL,1)*10000)/100);
-    const inWkAct = lastActDt && we <= lastActDt;
+    const inWkAct = lastActDt && ws <= lastActDt;
     actPct.push(inWkAct ? Math.round(wkCumAct/TOTAL*10000)/100 : null);
     wkBdAct.push(inWkAct ? TOTAL - wkCumAct : null);
   }
