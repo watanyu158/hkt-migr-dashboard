@@ -576,24 +576,36 @@ async function getData() {
 }
 
 // ── Webhook รับ Excel จาก Make.com ──
-app.post('/api/webhook/excel', (req,res)=>{
+// รับ multipart/form-data ด้วย
+const multer = require('multer');
+const upload = multer({storage: multer.memoryStorage(), limits:{fileSize:50*1024*1024}});
+
+app.post('/api/webhook/excel', upload.single('file'), (req,res)=>{
   try {
+    // รับจาก multer (multipart) หรือ JSON
+    if (req.file) {
+      const buf = req.file.buffer;
+      if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
+      fs.writeFileSync(EXCEL_PATH, buf);
+      cache = null;
+      console.log('Webhook multipart: Excel updated, size='+buf.length);
+      return res.json({success:true, size:buf.length, updated: new Date().toISOString()});
+    }
     const body = req.body;
-    // Make.com ส่งมาเป็น JSON {content: "..."} หรือ binary
+    // debug: ดูว่าได้รับอะไร
+    const keys = Object.keys(body||{});
+    const sample = keys.map(k=>({k, type:typeof body[k], len:typeof body[k]==='string'?body[k].length:'-'}));
+    console.log('Webhook received:', JSON.stringify(sample));
+
     let buf;
     if (body && body.content) {
-      // base64 string
       buf = Buffer.from(body.content, 'base64');
-    } else if (Buffer.isBuffer(body)) {
-      buf = body;
-    } else if (typeof body === 'string') {
-      buf = Buffer.from(body, 'base64');
+    } else if (body && body.data) {
+      buf = Buffer.isBuffer(body.data) ? body.data : Buffer.from(body.data, 'base64');
     } else {
-      // Make.com อาจส่งเป็น raw binary ใน field อื่น
-      const raw = JSON.stringify(body);
-      return res.status(400).json({error:'Unknown format', keys:Object.keys(body||{}), sample:raw.slice(0,100)});
+      return res.status(400).json({error:'Unknown format', keys, sample});
     }
-    if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
+    if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length, keys, sample});
     fs.writeFileSync(EXCEL_PATH, buf);
     cache = null;
     console.log('Webhook: Excel updated, size='+buf.length);
