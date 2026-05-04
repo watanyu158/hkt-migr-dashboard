@@ -574,26 +574,30 @@ async function getData() {
   return cachedData;
 }
 
-// ── ทดสอบ OneDrive download ──
+// ── ทดสอบ OneDrive download — follow redirects ──
 app.get('/api/test-onedrive', async (req,res)=>{
   const https = require('https');
-  // ลอง 3 URL formats
-  const urls = [
-    'https://onedrive.live.com/download?cid=56C0D80FE49F2140&resid=56C0D80FE49F2140%21IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY&authkey=3RtKZz',
-    'https://api.onedrive.com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL3gvYy81NmMwZDgwZmU0OWYyMTQwL0lRQ1dFRkJXcUxKUVFhT3dQT3pveFluRUFZajRGdGRuc1JwWkxiZHdiQzVhM3lZP2U9M1J0S1p6/root/content',
-    'https://1drv.ms/x/c/56c0d80fe49f2140/IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY?e=3RtKZz&download=1',
-  ];
-  const results = [];
-  for(const url of urls){
-    try{
-      const r = await new Promise((resolve,reject)=>{
-        https.get(url,{headers:{'User-Agent':'Mozilla/5.0'},followRedirects:false},resolve).on('error',reject);
-      });
-      results.push({url:url.slice(0,60), status:r.statusCode, location:r.headers.location?.slice(0,80)||null, size:r.headers['content-length']||null});
-      r.resume();
-    }catch(e){results.push({url:url.slice(0,60),error:String(e)});}
+  const http  = require('http');
+
+  function fetchFollow(url, maxRedirects=5){
+    return new Promise((resolve,reject)=>{
+      const mod = url.startsWith('https') ? https : http;
+      mod.get(url, {headers:{'User-Agent':'Mozilla/5.0 (compatible)'}}, r=>{
+        if((r.statusCode===301||r.statusCode===302||r.statusCode===307)&&r.headers.location&&maxRedirects>0){
+          r.resume();
+          return resolve(fetchFollow(r.headers.location, maxRedirects-1));
+        }
+        let data=[];
+        r.on('data',c=>data.push(c));
+        r.on('end',()=>resolve({status:r.statusCode, size:Buffer.concat(data).length, contentType:r.headers['content-type']||'', finalUrl:url}));
+      }).on('error',reject);
+    });
   }
-  res.json(results);
+
+  try{
+    const result = await fetchFollow('https://1drv.ms/x/c/56c0d80fe49f2140/IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY?e=3RtKZz&download=1');
+    res.json(result);
+  }catch(e){res.json({error:String(e)});}
 });
 
 app.get('/api/dashboard', async (req,res) => {
