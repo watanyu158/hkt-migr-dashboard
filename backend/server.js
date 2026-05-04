@@ -240,8 +240,8 @@ function parseData() {
     dailyPlanCum.push(Math.round(Math.min(cumPlan/TOTAL,1)*10000)/100);
     const inAct = lastActDt && new Date(k+'T00:00:00') <= lastActDt;
     dailyActCum.push(inAct ? Math.round(cumAct/TOTAL*10000)/100 : null);
-    dailySwActCum.push(inAct ? Math.round(cumSwAct/TOTAL*10000)/100 : null);
-    dailyApActCum.push(inAct ? Math.round(cumApAct/TOTAL*10000)/100 : null);
+    dailySwActCum.push(inAct ? Math.round(cumSwAct/TOTAL_SW*10000)/100 : null);
+    dailyApActCum.push(inAct ? Math.round(cumApAct/(TOTAL_AP||1)*10000)/100 : null);
   });
 
   // ── weekly ──
