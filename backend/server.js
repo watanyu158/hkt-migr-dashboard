@@ -574,6 +574,18 @@ async function getData() {
   return cachedData;
 }
 
+// ── ทดสอบ OneDrive download ──
+app.get('/api/test-onedrive', async (req,res)=>{
+  const https = require('https');
+  const url = 'https://api.onedrive.com/v1.0/shares/u!aHR0cHM6Ly8xZHJ2Lm1zL3gvYy81NmMwZDgwZmU0OWYyMTQwL0lRQ1dFRkJXcUxKUVFhT3dQT3pveFluRUFZajRGdGRuc1JwWkxiZHdiQzVhM3lZP2U9M1J0S1p6/root/content';
+  try {
+    const r = await new Promise((resolve,reject)=>{
+      https.get(url, {headers:{'User-Agent':'Mozilla/5.0'}}, resolve).on('error',reject);
+    });
+    res.json({status: r.statusCode, headers: r.headers, url: r.headers.location||'no redirect'});
+  } catch(e) { res.json({error: String(e)}); }
+});
+
 app.get('/api/dashboard', async (req,res) => {
   try { res.json(await getData()); }
   catch(e) { res.status(500).json({error:e.message}); }
