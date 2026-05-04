@@ -6,7 +6,8 @@ const fs      = require('fs');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({limit:'50mb'}));
+app.use(express.raw({limit:'50mb', type:'application/octet-stream'}));
 
 const EXCEL_PATH = path.join(__dirname, 'SAT Progress.xlsx');
 const CACHE_TTL  = 5 * 60 * 1000;
@@ -577,14 +578,24 @@ async function getData() {
 // ── Webhook รับ Excel จาก Make.com ──
 app.post('/api/webhook/excel', (req,res)=>{
   try {
-    // Make.com ส่ง base64 content มาใน body
     const body = req.body;
-    const b64 = body.content || body.data || body.file;
-    if (!b64) return res.status(400).json({error:'No file content'});
-    const buf = Buffer.from(b64, 'base64');
+    // Make.com ส่งมาเป็น JSON {content: "..."} หรือ binary
+    let buf;
+    if (body && body.content) {
+      // base64 string
+      buf = Buffer.from(body.content, 'base64');
+    } else if (Buffer.isBuffer(body)) {
+      buf = body;
+    } else if (typeof body === 'string') {
+      buf = Buffer.from(body, 'base64');
+    } else {
+      // Make.com อาจส่งเป็น raw binary ใน field อื่น
+      const raw = JSON.stringify(body);
+      return res.status(400).json({error:'Unknown format', keys:Object.keys(body||{}), sample:raw.slice(0,100)});
+    }
     if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
     fs.writeFileSync(EXCEL_PATH, buf);
-    cache = null; // clear cache
+    cache = null;
     console.log('Webhook: Excel updated, size='+buf.length);
     res.json({success:true, size:buf.length, updated: new Date().toISOString()});
   } catch(e) {
