@@ -603,7 +603,21 @@ app.get('/api/test-onedrive', async (req,res)=>{
   }
 
   try{
-    const result = await fetchFollow('https://1drv.ms/x/c/56c0d80fe49f2140/IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY?e=3RtKZz&download=1');
+    // ลอง download URL formats
+    const urls = [
+      // Format A: onedrive.live.com/download โดยตรง
+      'https://onedrive.live.com/download?resid=56C0D80FE49F2140%21IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY&authkey=%213RtKZz',
+      // Format B: view URL + download=1
+      'https://onedrive.live.com/:x:/g/personal/56C0D80FE49F2140/IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY?e=3RtKZz&download=1',
+      // Format C: share key ตรง
+      'https://onedrive.live.com/redir?resid=56C0D80FE49F2140%21IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY&authkey=%213RtKZz&ithint=file%2cxlsx',
+    ];
+    const results = [];
+    for(const u of urls){
+      const r = await fetchFollow(u, 8, []);
+      results.push({url:u.slice(0,60), finalStatus:r.finalStatus, size:r.size, ct:r.contentType.slice(0,40), chain:r.chain.map(c=>({s:c.status,l:c.location.slice(0,60)}))});
+    }
+    const result = results;
     res.json(result);
   }catch(e){res.json({error:String(e)});}
 });
