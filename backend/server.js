@@ -574,52 +574,23 @@ async function getData() {
   return cachedData;
 }
 
-// ── ทดสอบ OneDrive download — follow redirects ──
-app.get('/api/test-onedrive', async (req,res)=>{
-  const https = require('https');
-  const http  = require('http');
-  const {URL} = require('url');
-
-  function fetchFollow(urlStr, maxRedirects=8, chain=[]){
-    return new Promise((resolve,reject)=>{
-      let parsedUrl;
-      try { parsedUrl = new URL(urlStr); } catch(e){ return reject(new Error('Invalid URL: '+urlStr)); }
-      const mod = parsedUrl.protocol==='https:' ? https : http;
-      const opts = {hostname:parsedUrl.hostname, path:parsedUrl.pathname+parsedUrl.search, headers:{'User-Agent':'Mozilla/5.0','Accept':'*/*'}};
-      mod.get(opts, r=>{
-        chain.push({url:urlStr.slice(0,80), status:r.statusCode, location:(r.headers.location||'').slice(0,80)});
-        if([301,302,303,307,308].includes(r.statusCode)&&r.headers.location&&maxRedirects>0){
-          r.resume();
-          // handle relative redirect
-          let nextUrl = r.headers.location;
-          if(nextUrl.startsWith('/')) nextUrl = parsedUrl.protocol+'//'+parsedUrl.hostname+nextUrl;
-          return resolve(fetchFollow(nextUrl, maxRedirects-1, chain));
-        }
-        let data=[];
-        r.on('data',c=>data.push(c));
-        r.on('end',()=>resolve({finalStatus:r.statusCode, size:Buffer.concat(data).length, contentType:r.headers['content-type']||'', chain}));
-      }).on('error',reject);
-    });
+// ── Webhook รับ Excel จาก Make.com ──
+app.post('/api/webhook/excel', (req,res)=>{
+  try {
+    // Make.com ส่ง base64 content มาใน body
+    const body = req.body;
+    const b64 = body.content || body.data || body.file;
+    if (!b64) return res.status(400).json({error:'No file content'});
+    const buf = Buffer.from(b64, 'base64');
+    if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
+    fs.writeFileSync(EXCEL_PATH, buf);
+    cache = null; // clear cache
+    console.log('Webhook: Excel updated, size='+buf.length);
+    res.json({success:true, size:buf.length, updated: new Date().toISOString()});
+  } catch(e) {
+    console.error('Webhook error:', e);
+    res.status(500).json({error:String(e)});
   }
-
-  try{
-    // ลอง download URL formats
-    const urls = [
-      // Format A: onedrive.live.com/download โดยตรง
-      'https://onedrive.live.com/download?resid=56C0D80FE49F2140%21IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY&authkey=%213RtKZz',
-      // Format B: view URL + download=1
-      'https://onedrive.live.com/:x:/g/personal/56C0D80FE49F2140/IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY?e=3RtKZz&download=1',
-      // Format C: share key ตรง
-      'https://onedrive.live.com/redir?resid=56C0D80FE49F2140%21IQCWEFBWqLJQQaOwPOzoxYnEAYj4FtdnsRpZLbdwbC5a3yY&authkey=%213RtKZz&ithint=file%2cxlsx',
-    ];
-    const results = [];
-    for(const u of urls){
-      const r = await fetchFollow(u, 8, []);
-      results.push({url:u.slice(0,60), finalStatus:r.finalStatus, size:r.size, ct:r.contentType.slice(0,40), chain:r.chain.map(c=>({s:c.status,l:c.location.slice(0,60)}))});
-    }
-    const result = results;
-    res.json(result);
-  }catch(e){res.json({error:String(e)});}
 });
 
 app.get('/api/dashboard', async (req,res) => {
