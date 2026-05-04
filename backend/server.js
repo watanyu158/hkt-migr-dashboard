@@ -329,8 +329,9 @@ function parseData() {
     const r = hktRows[i];
     if (!r) continue;
     if (r[0]) locSite = String(r[0]).trim();
-    if (!locSite) continue;
-    const room = r[1] ? String(r[1]).trim() : '(ไม่ระบุห้อง)';
+    if (!locSite || locSite.startsWith('%')) { locSite = null; continue; }
+    if (typeof r[1] !== 'string') continue; // skip rows ที่ col B ไม่ใช่ string
+    const room = r[1].trim() || '(ไม่ระบุห้อง)';
     const qty  = typeof r[6]==='number' ? r[6] : 0;
     const mig  = typeof r[15]==='number' ? r[15] : 0;
     if (qty <= 0) continue;
