@@ -232,11 +232,11 @@ function parseData() {
     const [dd,mm] = lbl.split('/');
     const k = `2026-${mm}-${dd}`;
     bdPlan.push(Math.round(TOTAL - cumPlan));
-    bdAct.push(lastActDt && new Date(k+'T00:00:00') <= lastActDt ? TOTAL - cumAct : null);
     cumPlan += dayPlanFull[k]||0;
     cumAct  += dayActMap[k]||0;
     cumSwAct += daySwActMap[k]||0;
     cumApAct += dayApActMap[k]||0;
+    bdAct.push(lastActDt && new Date(k+'T00:00:00') <= lastActDt ? TOTAL - cumAct : null);
     dailyPlanCum.push(Math.round(Math.min(cumPlan/TOTAL,1)*10000)/100);
     const inAct = lastActDt && new Date(k+'T00:00:00') <= lastActDt;
     dailyActCum.push(inAct ? Math.round(cumAct/TOTAL*10000)/100 : null);
