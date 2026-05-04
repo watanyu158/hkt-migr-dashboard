@@ -578,18 +578,26 @@ async function getData() {
 app.get('/api/test-onedrive', async (req,res)=>{
   const https = require('https');
   const http  = require('http');
+  const {URL} = require('url');
 
-  function fetchFollow(url, maxRedirects=5){
+  function fetchFollow(urlStr, maxRedirects=8, chain=[]){
     return new Promise((resolve,reject)=>{
-      const mod = url.startsWith('https') ? https : http;
-      mod.get(url, {headers:{'User-Agent':'Mozilla/5.0 (compatible)'}}, r=>{
-        if((r.statusCode===301||r.statusCode===302||r.statusCode===307)&&r.headers.location&&maxRedirects>0){
+      let parsedUrl;
+      try { parsedUrl = new URL(urlStr); } catch(e){ return reject(new Error('Invalid URL: '+urlStr)); }
+      const mod = parsedUrl.protocol==='https:' ? https : http;
+      const opts = {hostname:parsedUrl.hostname, path:parsedUrl.pathname+parsedUrl.search, headers:{'User-Agent':'Mozilla/5.0','Accept':'*/*'}};
+      mod.get(opts, r=>{
+        chain.push({url:urlStr.slice(0,80), status:r.statusCode, location:(r.headers.location||'').slice(0,80)});
+        if([301,302,303,307,308].includes(r.statusCode)&&r.headers.location&&maxRedirects>0){
           r.resume();
-          return resolve(fetchFollow(r.headers.location, maxRedirects-1));
+          // handle relative redirect
+          let nextUrl = r.headers.location;
+          if(nextUrl.startsWith('/')) nextUrl = parsedUrl.protocol+'//'+parsedUrl.hostname+nextUrl;
+          return resolve(fetchFollow(nextUrl, maxRedirects-1, chain));
         }
         let data=[];
         r.on('data',c=>data.push(c));
-        r.on('end',()=>resolve({status:r.statusCode, size:Buffer.concat(data).length, contentType:r.headers['content-type']||'', finalUrl:url}));
+        r.on('end',()=>resolve({finalStatus:r.statusCode, size:Buffer.concat(data).length, contentType:r.headers['content-type']||'', chain}));
       }).on('error',reject);
     });
   }
