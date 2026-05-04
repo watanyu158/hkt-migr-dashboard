@@ -1158,7 +1158,7 @@ main { padding: 12px 10px; }
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--info-l);color:var(--info)">📆</div>อุปกรณ์ที่ติดตั้งตามวันที่</div><div style="height:175px"><canvas id="daily-c"></canvas></div></div>
   <div class="card" style="margin-bottom:14px"><div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📈</div>ความคืบหน้าสะสม (Switch / AP / Infra)</div><div style="height:175px"><canvas id="cum-c"></canvas></div></div>
   <div class="g2" style="margin-bottom:14px">
-    <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">📦</div>ผลการติดตั้งในสัปดาห์ที่ผ่านมา <span id="fab-gap-title" style="color:var(--text2);font-weight:400;font-size:11px"></span></div><div style="height:230px"><canvas id="fab-gap-c"></canvas></div></div>
+    <div class="card"><div class="ch"><div class="chi" style="background:var(--primary-l);color:var(--primary)">📦</div>ผลการติดตั้งในสัปดาห์ที่ผ่านมา <span id="fab-gap-title" style="color:var(--text2);font-weight:400;font-size:11px"></span></div><div style="height:420px"><canvas id="fab-gap-c"></canvas></div></div>
     <div class="card">
       <div class="ch"><div class="chi" style="background:var(--warning-l);color:var(--warning)">📅</div>ผลต่อวันที่ผ่านมา (แต่ละวันในสัปดาห์)
         <span style="font-size:11px;font-weight:400;color:var(--text2);margin-left:auto" id="weekday-range">กำลังโหลด...</span>
@@ -1733,16 +1733,15 @@ function buildFabGap(){
       const f=fabWkData[i]; if(!f) return;
       const actPct=Math.round(f.d/Math.max(f.t,1)*100);
       ctx2.save();
+      ctx2.font='bold 10px IBM Plex Sans Thai, Segoe UI';
+      ctx2.textAlign='left';
+      ctx2.textBaseline='middle';
       if(f.tot>0){
-        ctx2.font='bold 10px Segoe UI'; ctx2.textAlign='left';
-        ctx2.textBaseline='middle'; ctx2.fillStyle='#3d2817';
-        ctx2.fillText(`${f.tot} เครื่อง`, bar.x+5, bar.y-5);
-        ctx2.font='9px Segoe UI'; ctx2.fillStyle='#6b5744';
-        ctx2.fillText(`(รวม ${f.d}/${f.t})`, bar.x+5, bar.y+5);
+        ctx2.fillStyle='#3d2817';
+        ctx2.fillText(`${f.tot} เครื่อง  (รวม ${f.d}/${f.t})`, bar.x+6, bar.y);
       } else {
-        ctx2.font='9px Segoe UI'; ctx2.textAlign='left';
-        ctx2.textBaseline='middle'; ctx2.fillStyle='#9c8a74';
-        ctx2.fillText(`– (รวม ${f.d}/${f.t})`, bar.x+5, bar.y);
+        ctx2.fillStyle='#9c8a74';
+        ctx2.fillText(`(รวม ${f.d}/${f.t})`, bar.x+6, bar.y);
       }
       ctx2.restore();
     });
@@ -1762,7 +1761,7 @@ function buildFabGap(){
     },
     options:{
       indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      layout:{padding:{right:130,top:4}},
+      layout:{padding:{right:160,top:4}},
       plugins:{
         legend:{display:false},
         tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',
