@@ -3825,10 +3825,12 @@ async function exportPDF(){
       if(d){
         const img=document.createElement('img');
         img.src=d.url;
-        // บังคับ aspect ratio ให้ตรง (ป้องกันวงรี)
         const w=Math.min(d.w,1100), h=d.h;
         img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
-        cv.parentNode.replaceChild(img,cv);
+        // ซ่อน center text (.dc, .ins-gc) ที่ทับกับ img
+        const parent=cv.parentNode;
+        parent.querySelectorAll('.dc,.ins-gc').forEach(el=>el.style.display='none');
+        parent.replaceChild(img,cv);
       }else cv.style.display='none';
     });
 
