@@ -3730,6 +3730,12 @@ async function exportPDF(){
   try{
     // แสดงทุก tab ชั่วคราวเพื่อ capture เท่านั้น (restore ใน finally)
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display='block';});
+    // rebuild charts ใน tab ที่เพิ่ง show
+    if(typeof buildProgressCharts==='function') buildProgressCharts();
+    if(typeof buildGraphs==='function') buildGraphs();
+    if(typeof buildVelocityChart==='function') buildVelocityChart();
+    if(typeof buildWeekdayChart==='function') buildWeekdayChart();
+    if(typeof buildFabGap==='function') buildFabGap();
     // expand loc-list ทั้งหมดก่อน capture
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
       b.classList.add('open');
@@ -3738,7 +3744,7 @@ async function exportPDF(){
     });
     await new Promise(r=>setTimeout(r,1500));
 
-    // capture charts
+    // capture charts — ใช้ทั้ง Chart.instances และ canvas.toDataURL เพื่อครอบคลุมทุกอัน
     const imgs={};
     if(typeof Chart!=='undefined')
       Object.values(Chart.instances||{}).forEach(ch=>{
@@ -3746,6 +3752,15 @@ async function exportPDF(){
           imgs[id]={url:ch.toBase64Image('image/png',1),w:ch.canvas.offsetWidth,h:ch.canvas.offsetHeight};
         }catch(e){}
       });
+    // จาก canvas โดยตรง (รวม chart ที่อยู่ใน tab ซ่อน)
+    document.querySelectorAll('canvas').forEach(cv=>{
+      try{
+        if(!cv.id||imgs[cv.id]) return;
+        const url=cv.toDataURL('image/png',1);
+        if(url&&url.length>3000)
+          imgs[cv.id]={url,w:cv.offsetWidth||cv.width,h:cv.offsetHeight||cv.height};
+      }catch(e){}
+    });
 
     const styles=Array.from(document.styleSheets).map(ss=>{
       try{return Array.from(ss.cssRules).map(r=>r.cssText).join('\n');}catch(e){return '';}
