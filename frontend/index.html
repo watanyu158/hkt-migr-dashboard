@@ -723,7 +723,17 @@ main { padding: 12px 10px; }
   /* donut: บังคับ square ไม่ให้บิดเป็นวงรี */
   #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
   #donut-c ~ div { width: 120px !important; height: 120px !important; }
-  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
+  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; position:relative !important; }
+  /* center text ใน donut/gauge */
+  .dc, .ins-gc {
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
 }
 
 /* ── Loading spinner ─────────────────────────────── */
@@ -3736,6 +3746,8 @@ async function exportPDF(){
     if(typeof buildVelocityChart==='function') buildVelocityChart();
     if(typeof buildWeekdayChart==='function') buildWeekdayChart();
     if(typeof buildFabGap==='function') buildFabGap();
+    // รอ per-site charts ที่ใช้ setTimeout
+    if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
     // expand loc-list ทั้งหมดก่อน capture
     document.querySelectorAll('#loc-list .fgb').forEach(b=>{
       b.classList.add('open');
