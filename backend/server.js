@@ -12,6 +12,8 @@ app.use(express.raw({limit:'50mb', type:'application/octet-stream'}));
 const EXCEL_PATH = path.join(__dirname, 'SAT Progress.xlsx');
 const CACHE_TTL  = 5 * 60 * 1000;
 let cacheTime = 0, cachedData = null;
+let excelUpdatedAt = null; // timestamp ล่าสุดที่ Make.com ส่ง Excel มา
+let serverStartedAt = Date.now(); // เวลา server start
 
 function toDate(v) {
   if (typeof v !== 'number' || v <= 0) return null;
@@ -587,7 +589,7 @@ app.post('/api/webhook/excel', upload.single('file'), (req,res)=>{
       const buf = req.file.buffer;
       if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
       fs.writeFileSync(EXCEL_PATH, buf);
-      cache = null;
+      cache = null; excelUpdatedAt = Date.now();
       console.log('Webhook multipart: Excel updated, size='+buf.length);
       return res.json({success:true, size:buf.length, updated: new Date().toISOString()});
     }
@@ -607,7 +609,7 @@ app.post('/api/webhook/excel', upload.single('file'), (req,res)=>{
     }
     if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length, keys, sample});
     fs.writeFileSync(EXCEL_PATH, buf);
-    cache = null;
+    cache = null; excelUpdatedAt = Date.now();
     console.log('Webhook: Excel updated, size='+buf.length);
     res.json({success:true, size:buf.length, updated: new Date().toISOString()});
   } catch(e) {
