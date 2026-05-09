@@ -1894,7 +1894,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (el) el.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 });
 
-function buildGauge(pct){
+function buildGauge(pct, forExport=false){
   const cv=document.getElementById('gauge-c'); if(!cv) return;
   const ex=Chart.getChart(cv); if(ex) ex.destroy();
   const p=Math.min(Math.max(pct||0,0),150);
@@ -1902,11 +1902,8 @@ function buildGauge(pct){
   const trackColor=p>=100?'rgba(43,196,138,.2)':p>=70?'rgba(253,211,77,.25)':'rgba(238,75,75,.15)';
   const filled=Math.min(Math.round(p),100);
   const remain=100-filled;
-  // center text plugin
   const _gpEl=document.querySelector('.ins-gc .gp');
-  const _glEl=document.querySelector('.ins-gc .gl');
   const _gpTxt=_gpEl?.textContent||p+'%';
-  const _glTxt=_glEl?.textContent||'';
   const _gaugeCenterPlugin={id:'gaugeCenter',afterDraw(chart){
     const {ctx,chartArea:{left,right,bottom}}=chart;
     const cx=(left+right)/2, cy=bottom-8;
@@ -1921,7 +1918,7 @@ function buildGauge(pct){
     data:{datasets:[{data:[filled,remain],backgroundColor:[color,trackColor],borderWidth:0}]},
     options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{enabled:false}}},
-    plugins:[_gaugeCenterPlugin]});
+    plugins: forExport ? [_gaugeCenterPlugin] : []});
 }
 
 function buildBurndown(){
@@ -2011,10 +2008,9 @@ function buildBurndown(){
 }
 
 
-function buildDonut(){
+function buildDonut(forExport=false){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
   if(_ch_donutc) _ch_donutc.destroy();
-  // center text plugin
   const _dcText = document.querySelector('.dc .dp');
   const _dcLabel = document.querySelector('.dc .dl');
   const _centerTxt = _dcText?.textContent||'';
@@ -2032,7 +2028,7 @@ function buildDonut(){
     ctx.fillText(_centerLbl, cx, cy+10);
     ctx.restore();
   }};
-  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:[_donutCenterPlugin]});
+  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:forExport?[_donutCenterPlugin]:[]});
 }
 
 function buildTimeline(){
@@ -3642,7 +3638,7 @@ async function loadData(){
     if(_e('donut-early-cnt'))   _e('donut-early-cnt').textContent   = earlyQ.toLocaleString();
     if(_e('donut-late-cnt'))    _e('donut-late-cnt').textContent    = lateQ.toLocaleString();
     if(_e('donut-pending-cnt')) _e('donut-pending-cnt').textContent = pendQ.toLocaleString();
-    buildGauge(ins.gauge_pct); buildBurndown();
+    buildGauge(ins.gauge_pct); window._lastGaugePct=ins.gauge_pct; buildBurndown();
     gblt=false; buildProgressCharts(); buildFabBreakdown(); buildSiteBreakdowns(); buildTypeBarChart();
     buildVelocityChart(); buildWeekdayChart(); buildFabGap();
     // wd-cells populate ทันทีหลัง data load
@@ -3769,6 +3765,9 @@ async function exportPDF(){
     if(typeof buildVelocityChart==='function') buildVelocityChart();
     if(typeof buildWeekdayChart==='function') buildWeekdayChart();
     if(typeof buildFabGap==='function') buildFabGap();
+    // rebuild gauge/donut พร้อม center text plugin เฉพาะตอน export
+    if(typeof buildGauge==='function') buildGauge(window._lastGaugePct||0, true);
+    if(typeof buildDonut==='function') buildDonut(true);
     // รอ per-site charts ที่ใช้ setTimeout
     if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
     // expand loc-list ทั้งหมดก่อน capture
@@ -3908,8 +3907,9 @@ ${wrapper.outerHTML}
     console.error(err);pw.close();alert('Export ไม่สำเร็จ: '+err.message);
   }finally{
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
-    // collapse loc-list กลับ
     document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
+    if(typeof buildGauge==='function') buildGauge(window._lastGaugePct||0, false);
+    if(typeof buildDonut==='function') buildDonut(false);
   }
 }
 
