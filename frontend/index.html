@@ -1892,29 +1892,35 @@ window.addEventListener('DOMContentLoaded', async () => {
   const syncLbl = document.getElementById('last-sync-lbl');
   const _setStatus = (msg) => { if(syncLbl) syncLbl.textContent = msg; };
 
+  // โหลดข้อมูลที่มีอยู่ก่อนเลย (อาจเป็นข้อมูลเก่า)
+  await loadData();
+  if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
   try {
     const readyRes = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
 
-    // รอเฉพาะตอนที่ Make.com ยังไม่ได้ส่ง Excel มาเลย (excelUpdatedAt = null)
-    // ถ้า updated มีค่าแล้ว = Make.com เคยส่งมาแล้ว ใช้ได้เลย
+    // ถ้า Make.com ยังไม่เคยส่งมาในรอบนี้ → trigger และรอใน background
     if (readyRes && !readyRes.updated) {
       _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
       try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
 
+      // poll ใน background ไม่ block UI
       let waited = 0;
-      while (waited < 30) {
-        await new Promise(r=>setTimeout(r,2000));
-        waited += 2;
+      const pollInterval = setInterval(async ()=>{
+        waited += 3;
         _setStatus(`☁️ กำลังดึง Excel ล่าสุด... (${waited}s)`);
         const r2 = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
-        if (r2?.updated) break;
-      }
-      await fetch(API+'/api/cache/refresh', {method:'POST'}).catch(()=>{});
+        if (r2?.updated) {
+          clearInterval(pollInterval);
+          // Excel ใหม่มาแล้ว — reload ข้อมูลใหม่
+          await fetch(API+'/api/cache/refresh', {method:'POST'}).catch(()=>{});
+          await loadData();
+          if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+        }
+        if (waited >= 120) clearInterval(pollInterval); // timeout 2 นาที
+      }, 3000);
     }
   } catch(e) {}
-
-  await loadData();
-  if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 });
 
 function buildGauge(pct, forExport=false){
