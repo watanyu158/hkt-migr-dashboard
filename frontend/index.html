@@ -1905,11 +1905,10 @@ function buildGauge(pct, forExport=false){
   const _gpEl=document.querySelector('.ins-gc .gp');
   const _gpTxt=_gpEl?.textContent||p+'%';
   const _gaugeCenterPlugin={id:'gaugeCenter',afterDraw(chart){
-    const {ctx,canvas}=chart;
-    const cx=canvas.width/2;
-    const cy=canvas.height*0.82;
+    const {ctx,chartArea:{left,right,bottom}}=chart;
+    const cx=(left+right)/2, cy=bottom-6;
     ctx.save();
-    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.textAlign='center';
     ctx.font='bold 18px IBM Plex Sans Thai, Segoe UI';
     ctx.fillStyle=color;
     ctx.fillText(_gpTxt, cx, cy);
@@ -2019,7 +2018,7 @@ function buildDonut(forExport=false){
   const _donutCenterPlugin = {id:'donutCenter',afterDraw(chart){
     const {ctx,canvas}=chart;
     const cx=canvas.width/2;
-    const cy=canvas.height/2+10;
+    const cy=canvas.height*0.58;
     ctx.save();
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.font='bold 16px IBM Plex Sans Thai, Segoe UI';
