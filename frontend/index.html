@@ -720,12 +720,25 @@ main { padding: 12px 10px; }
   .insights-box { background: #fffbeb !important; padding: 8px 12px !important; }
   .ins-panels { flex-direction: row !important; }
   .ins-pills { grid-template-columns: repeat(6,1fr) !important; }
-  /* donut center text — ดันลงมาจากขอบบน */
+  /* donut: บังคับ square ไม่ให้บิดเป็นวงรี */
   #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
   #donut-c ~ div { width: 120px !important; height: 120px !important; }
-  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
+  [style*="width:150px"][style*="height:150px"] {
+    width: 120px !important; height: 120px !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    display: block !important;
+  }
+  [style*="width:150px"][style*="height:150px"] img {
+    width: 120px !important; height: 120px !important;
+    display: block !important;
+  }
   [style*="width:150px"][style*="height:150px"] .dc {
-    padding-top: 30px !important;
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
     justify-content: center !important;
   }
 }
