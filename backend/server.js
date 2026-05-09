@@ -623,6 +623,11 @@ app.get('/api/dashboard', async (req,res) => {
   catch(e) { res.status(500).json({error:e.message}); }
 });
 app.get('/api/health', (req,res) => res.json({status:'ok'}));
+app.get('/api/ready', (req,res)=>{
+  const now = Date.now();
+  const uptime = now - serverStartedAt;
+  res.json({ready: excelUpdatedAt!==null || uptime>30000, updated: excelUpdatedAt, uptime: Math.round(uptime/1000)});
+});
 app.post('/api/cache/refresh', (req,res) => {
   cacheTime=0; cachedData=null;
   try { res.json({success:true, data:parseData()}); }
