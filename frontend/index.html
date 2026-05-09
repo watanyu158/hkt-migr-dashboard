@@ -723,17 +723,7 @@ main { padding: 12px 10px; }
   /* donut: บังคับ square ไม่ให้บิดเป็นวงรี */
   #donut-c { width: 120px !important; height: 120px !important; max-width: 120px !important; }
   #donut-c ~ div { width: 120px !important; height: 120px !important; }
-  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; position:relative !important; }
-  /* center text ใน donut/gauge */
-  .dc, .ins-gc {
-    position: absolute !important;
-    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
+  [style*="width:150px"][style*="height:150px"] { width: 120px !important; height: 120px !important; flex-shrink: 0 !important; }
 }
 
 /* ── Loading spinner ─────────────────────────────── */
@@ -1910,13 +1900,33 @@ function buildGauge(pct){
   const p=Math.min(Math.max(pct||0,0),150);
   const color=p>=100?'#7a8f4c':p>=70?'#c08a2e':'#a8452e';
   const trackColor=p>=100?'rgba(43,196,138,.2)':p>=70?'rgba(253,211,77,.25)':'rgba(238,75,75,.15)';
-  // arc: filled = p/150 ของครึ่งวงกลม
   const filled=Math.min(Math.round(p),100);
   const remain=100-filled;
+  // center text plugin
+  const _gpEl=document.querySelector('.ins-gc .gp');
+  const _glEl=document.querySelector('.ins-gc .gl');
+  const _gpTxt=_gpEl?.textContent||p+'%';
+  const _glTxt=_glEl?.textContent||'';
+  const _gaugeCenterPlugin={id:'gaugeCenter',afterDraw(chart){
+    const {ctx,chartArea:{left,right,bottom}}=chart;
+    const cx=(left+right)/2, cy=bottom-4;
+    ctx.save();
+    ctx.textAlign='center';
+    ctx.font='bold 14px IBM Plex Sans Thai, Segoe UI';
+    ctx.fillStyle=color;
+    ctx.fillText(_gpTxt, cx, cy-10);
+    if(_glTxt){
+      ctx.font='9px IBM Plex Sans Thai, Segoe UI';
+      ctx.fillStyle='#9c8a74';
+      ctx.fillText(_glTxt, cx, cy+2);
+    }
+    ctx.restore();
+  }};
   new Chart(cv,{type:'doughnut',
     data:{datasets:[{data:[filled,remain],backgroundColor:[color,trackColor],borderWidth:0}]},
     options:{cutout:'72%',circumference:180,rotation:-90,responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+      plugins:{legend:{display:false},tooltip:{enabled:false}}},
+    plugins:[_gaugeCenterPlugin]});
 }
 
 function buildBurndown(){
@@ -2009,7 +2019,25 @@ function buildBurndown(){
 function buildDonut(){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
   if(_ch_donutc) _ch_donutc.destroy();
-  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}}});
+  // center text plugin
+  const _dcText = document.querySelector('.dc .dp');
+  const _dcLabel = document.querySelector('.dc .dl');
+  const _centerTxt = _dcText?.textContent||'';
+  const _centerLbl = _dcLabel?.textContent||'';
+  const _donutCenterPlugin = {id:'donutCenter',afterDraw(chart){
+    const {ctx,chartArea:{top,bottom,left,right}}=chart;
+    const cx=(left+right)/2, cy=(top+bottom)/2;
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='bold 18px IBM Plex Sans Thai, Segoe UI';
+    ctx.fillStyle='#556b35';
+    ctx.fillText(_centerTxt, cx, cy-8);
+    ctx.font='10px IBM Plex Sans Thai, Segoe UI';
+    ctx.fillStyle='#9c8a74';
+    ctx.fillText(_centerLbl, cx, cy+10);
+    ctx.restore();
+  }};
+  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:[_donutCenterPlugin]});
 }
 
 function buildTimeline(){
