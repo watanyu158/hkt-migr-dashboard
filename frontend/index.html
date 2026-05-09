@@ -1899,25 +1899,27 @@ window.addEventListener('DOMContentLoaded', async () => {
   try {
     const readyRes = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
 
-    // ถ้า Make.com ยังไม่เคยส่งมาในรอบนี้ → trigger และรอใน background
-    if (readyRes && !readyRes.updated) {
-      _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
-      try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
+    if (readyRes) {
+      const updatedAfterBoot = readyRes.updated && (readyRes.updated > (Date.now() - readyRes.uptime*1000 - 5000));
+      
+      if (!updatedAfterBoot) {
+        // Make.com ยังไม่ส่ง Excel มาในรอบนี้ → trigger และ poll
+        _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
+        try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
 
-      // poll ใน background ไม่ block UI
-      let waited = 0;
-      const pollInterval = setInterval(async ()=>{
-        waited += 3;
-        _setStatus(`☁️ กำลังดึง Excel ล่าสุด... (${waited}s)`);
-        const r2 = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
-        if (r2?.updated) {
-          clearInterval(pollInterval);
-          // Excel ใหม่มาแล้ว — reload หน้าใหม่ทั้งหมด
-          _setStatus('✅ ได้ข้อมูลใหม่แล้ว กำลัง reload...');
-          setTimeout(()=>window.location.reload(), 500);
-        }
-        if (waited >= 120) clearInterval(pollInterval); // timeout 2 นาที
-      }, 3000);
+        let waited = 0;
+        const pollInterval = setInterval(async ()=>{
+          waited += 3;
+          _setStatus(`☁️ กำลังดึง Excel ล่าสุด... (${waited}s)`);
+          const r2 = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
+          if (r2?.updated && r2.updated !== readyRes.updated) {
+            clearInterval(pollInterval);
+            _setStatus('✅ ได้ข้อมูลใหม่แล้ว กำลัง reload...');
+            setTimeout(()=>window.location.reload(), 500);
+          }
+          if (waited >= 120) clearInterval(pollInterval);
+        }, 3000);
+      }
     }
   } catch(e) {}
 });
