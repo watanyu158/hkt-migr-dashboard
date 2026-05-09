@@ -2011,25 +2011,7 @@ function buildBurndown(){
 function buildDonut(forExport=false){
   const _ch_donutc = Chart.getChart(document.getElementById('donut-c'));
   if(_ch_donutc) _ch_donutc.destroy();
-  const _dcText = document.querySelector('.dc .dp');
-  const _dcLabel = document.querySelector('.dc .dl');
-  const _centerTxt = _dcText?.textContent||'';
-  const _centerLbl = _dcLabel?.textContent||'';
-  const _donutCenterPlugin = {id:'donutCenter',afterDraw(chart){
-    const {ctx,canvas}=chart;
-    const cx=canvas.width/2;
-    const cy=canvas.height*0.58;
-    ctx.save();
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.font='bold 16px IBM Plex Sans Thai, Segoe UI';
-    ctx.fillStyle='#556b35';
-    ctx.fillText(_centerTxt, cx, cy-8);
-    ctx.font='9px IBM Plex Sans Thai, Segoe UI';
-    ctx.fillStyle='#9c8a74';
-    ctx.fillText(_centerLbl, cx, cy+8);
-    ctx.restore();
-  }};
-  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:forExport?[_donutCenterPlugin]:[]});
+  new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:[]});
 }
 
 function buildTimeline(){
@@ -3768,7 +3750,6 @@ async function exportPDF(){
     if(typeof buildFabGap==='function') buildFabGap();
     // rebuild gauge/donut พร้อม center text plugin เฉพาะตอน export
     if(typeof buildGauge==='function') buildGauge(window._lastGaugePct||0, true);
-    if(typeof buildDonut==='function') buildDonut(true);
     // รอ per-site charts ที่ใช้ setTimeout
     if(window._fabChartPromises?.length) await Promise.all(window._fabChartPromises);
     // expand loc-list ทั้งหมดก่อน capture
@@ -3850,10 +3831,7 @@ async function exportPDF(){
         img.src=d.url;
         const w=Math.min(d.w,1100), h=d.h;
         img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
-        // ซ่อน center text (.dc, .ins-gc) ที่ทับกับ img
-        const parent=cv.parentNode;
-        parent.querySelectorAll('.dc,.ins-gc').forEach(el=>el.style.display='none');
-        parent.replaceChild(img,cv);
+        cv.parentNode.replaceChild(img,cv);
       }else cv.style.display='none';
     });
 
@@ -3910,7 +3888,6 @@ ${wrapper.outerHTML}
     TABS.forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.style.display=t===activeName?'block':'none';});
     document.querySelectorAll('#loc-list .fgb').forEach(b=>b.classList.remove('open'));
     if(typeof buildGauge==='function') buildGauge(window._lastGaugePct||0, false);
-    if(typeof buildDonut==='function') buildDonut(false);
   }
 }
 
