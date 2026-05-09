@@ -3848,9 +3848,15 @@ async function exportPDF(){
         img.src=d.url;
         const w=Math.min(d.w,1100), h=d.h;
         img.style.cssText=`display:block;width:${w}px;height:${h}px;max-width:100%;aspect-ratio:${w}/${h}`;
+        const parent=cv.parentNode;
         // ซ่อน .ins-gc (gauge text) ที่ทับกับ img เฉพาะ gauge
-        if(cv.id==='gauge-c') cv.parentNode.querySelectorAll('.ins-gc').forEach(el=>el.style.display='none');
-        cv.parentNode.replaceChild(img,cv);
+        if(cv.id==='gauge-c') parent.querySelectorAll('.ins-gc').forEach(el=>el.style.display='none');
+        // donut: ปรับ parent container ให้ตรงกับ img size เพื่อให้ center text อยู่กลาง
+        if(cv.id==='donut-c'){
+          parent.style.width=w+'px';
+          parent.style.height=h+'px';
+        }
+        parent.replaceChild(img,cv);
       }else cv.style.display='none';
     });
 
