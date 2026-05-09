@@ -1906,10 +1906,10 @@ function buildGauge(pct, forExport=false){
   const _gpTxt=_gpEl?.textContent||p+'%';
   const _gaugeCenterPlugin={id:'gaugeCenter',afterDraw(chart){
     const {ctx,chartArea:{left,right,bottom}}=chart;
-    const cx=(left+right)/2, cy=bottom-8;
+    const cx=(left+right)/2, cy=bottom-6;
     ctx.save();
     ctx.textAlign='center';
-    ctx.font='bold 14px IBM Plex Sans Thai, Segoe UI';
+    ctx.font='bold 18px IBM Plex Sans Thai, Segoe UI';
     ctx.fillStyle=color;
     ctx.fillText(_gpTxt, cx, cy);
     ctx.restore();
@@ -2017,15 +2017,16 @@ function buildDonut(forExport=false){
   const _centerLbl = _dcLabel?.textContent||'';
   const _donutCenterPlugin = {id:'donutCenter',afterDraw(chart){
     const {ctx,chartArea:{top,bottom,left,right}}=chart;
-    const cx=(left+right)/2, cy=(top+bottom)/2+8;
+    const cx=(left+right)/2;
+    const cy=top+(bottom-top)*0.6; // 60% จากบนลงล่าง
     ctx.save();
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.font='bold 16px IBM Plex Sans Thai, Segoe UI';
     ctx.fillStyle='#556b35';
-    ctx.fillText(_centerTxt, cx, cy-6);
+    ctx.fillText(_centerTxt, cx, cy-8);
     ctx.font='9px IBM Plex Sans Thai, Segoe UI';
     ctx.fillStyle='#9c8a74';
-    ctx.fillText(_centerLbl, cx, cy+10);
+    ctx.fillText(_centerLbl, cx, cy+8);
     ctx.restore();
   }};
   new Chart(document.getElementById('donut-c'),{type:'doughnut',data:{datasets:[{data:[435,23,2,1132],backgroundColor:['#7a8f4c','#b8593a','#a8452e','#e8dcc7'],borderWidth:3,borderColor:'#fff'}]},options:{cutout:'70%',responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(30,45,77,.92)',titleColor:'#fff',bodyColor:'rgba(255,255,255,.8)',padding:8,cornerRadius:8}}},plugins:forExport?[_donutCenterPlugin]:[]});
