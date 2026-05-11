@@ -3213,7 +3213,7 @@ function toggleAutoSync(){
 async function loadData(){
   showLoading();
   try{
-    const r = await fetch(`${API}/api/dashboard`);
+    const r = await fetch(`${API}/api/dashboard?t=${Date.now()}`, {cache:'no-store'});
     if(!r.ok) throw new Error('HTTP '+r.status);
     const d = await r.json();
     if(!d.weekly || !d.meta) throw new Error('Invalid API response');
