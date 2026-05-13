@@ -589,7 +589,7 @@ app.post('/api/webhook/excel', upload.single('file'), (req,res)=>{
       const buf = req.file.buffer;
       if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length});
       fs.writeFileSync(EXCEL_PATH, buf);
-      cache = null; excelUpdatedAt = Date.now();
+      cachedData = null; cacheTime = 0; excelUpdatedAt = Date.now();
       console.log('Webhook multipart: Excel updated, size='+buf.length);
       return res.json({success:true, size:buf.length, updated: new Date().toISOString()});
     }
@@ -609,7 +609,7 @@ app.post('/api/webhook/excel', upload.single('file'), (req,res)=>{
     }
     if (buf.length < 1000) return res.status(400).json({error:'File too small: '+buf.length, keys, sample});
     fs.writeFileSync(EXCEL_PATH, buf);
-    cache = null; excelUpdatedAt = Date.now();
+    cachedData = null; cacheTime = 0; excelUpdatedAt = Date.now();
     console.log('Webhook: Excel updated, size='+buf.length);
     res.json({success:true, size:buf.length, updated: new Date().toISOString()});
   } catch(e) {
