@@ -4012,8 +4012,8 @@ function buildUpcoming(){
     const currentUpdated = readyRes?.updated || 0;
     const uptime = readyRes?.uptime || 999;
 
-    // รอเฉพาะตอน server เพิ่ง restart (uptime < 120s) และ Make.com ยังไม่ส่งมา
-    if (uptime < 120 && (!currentUpdated || currentUpdated < pageLoadTime)) {
+    // รอเฉพาะตอน Make.com ยังไม่เคยส่ง Excel มาเลย (updated: null)
+    if (!currentUpdated) {
       // ซ่อน main แสดง loading
       if(mainEl) mainEl.style.visibility='hidden';
       _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
