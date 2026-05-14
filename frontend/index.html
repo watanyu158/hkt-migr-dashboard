@@ -4003,34 +4003,42 @@ function buildUpcoming(){
 (async()=>{
   const MAKE_WEBHOOK = 'https://hook.eu1.make.com/6mangbq9f8j4evhdv8252x1pjvnhlwsj';
   const syncLbl = document.getElementById('last-sync-lbl');
+  const mainEl = document.querySelector('main');
   const _setStatus = (msg) => { if(syncLbl) syncLbl.textContent = msg; };
   const pageLoadTime = Date.now();
 
-  await loadData();
-  if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-
   try {
     const readyRes = await fetch(API+'/api/ready',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
-    if (readyRes) {
-      const currentUpdated = readyRes.updated || 0;
-      if (!currentUpdated || currentUpdated < pageLoadTime) {
-        _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
-        try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
-        let waited = 0;
+    const currentUpdated = readyRes?.updated || 0;
+    const uptime = readyRes?.uptime || 999;
+
+    // รอเฉพาะตอน server เพิ่ง restart (uptime < 120s) และ Make.com ยังไม่ส่งมา
+    if (uptime < 120 && (!currentUpdated || currentUpdated < pageLoadTime)) {
+      // ซ่อน main แสดง loading
+      if(mainEl) mainEl.style.visibility='hidden';
+      _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
+      try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
+
+      let waited = 0;
+      await new Promise(resolve=>{
         const pollInterval = setInterval(async ()=>{
           waited += 3;
           _setStatus(`☁️ กำลังดึง Excel ล่าสุด... (${waited}s)`);
           const r2 = await fetch(API+'/api/ready',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
           if (r2?.updated && r2.updated !== currentUpdated) {
-            clearInterval(pollInterval);
-            _setStatus('✅ ได้ข้อมูลใหม่แล้ว กำลัง reload...');
-            setTimeout(()=>window.location.reload(), 500);
+            clearInterval(pollInterval); resolve();
           }
-          if (waited >= 120) clearInterval(pollInterval);
+          if (waited >= 120) { clearInterval(pollInterval); resolve(); }
         }, 3000);
-      }
+      });
+      await fetch(API+'/api/cache/refresh',{method:'POST'}).catch(()=>{});
     }
   } catch(e) {}
+
+  // โหลดข้อมูลและแสดง
+  await loadData();
+  if(mainEl) mainEl.style.visibility='visible';
+  if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 })();
 
 </script>
