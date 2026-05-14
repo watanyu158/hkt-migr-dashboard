@@ -1891,19 +1891,19 @@ window.addEventListener('DOMContentLoaded', async () => {
   const MAKE_WEBHOOK = 'https://hook.eu1.make.com/6mangbq9f8j4evhdv8252x1pjvnhlwsj';
   const syncLbl = document.getElementById('last-sync-lbl');
   const _setStatus = (msg) => { if(syncLbl) syncLbl.textContent = msg; };
+  const pageLoadTime = Date.now();
 
   // โหลดข้อมูลที่มีอยู่ก่อนเลย (อาจเป็นข้อมูลเก่า)
   await loadData();
   if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
   try {
-    const readyRes = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
+    const readyRes = await fetch(API+'/api/ready',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
 
     if (readyRes) {
-      const updatedAfterBoot = readyRes.updated && (readyRes.updated > (Date.now() - readyRes.uptime*1000 - 5000));
-      
-      if (!updatedAfterBoot) {
-        // Make.com ยังไม่ส่ง Excel มาในรอบนี้ → trigger และ poll
+      const currentUpdated = readyRes.updated || 0;
+      // trigger ถ้า updated น้อยกว่าเวลา page load (Make.com ส่งมาก่อนเราโหลด) หรือยังไม่เคยส่ง
+      if (!currentUpdated || currentUpdated < pageLoadTime) {
         _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
         try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
 
@@ -1911,8 +1911,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         const pollInterval = setInterval(async ()=>{
           waited += 3;
           _setStatus(`☁️ กำลังดึง Excel ล่าสุด... (${waited}s)`);
-          const r2 = await fetch(API+'/api/ready').then(r=>r.json()).catch(()=>null);
-          if (r2?.updated && r2.updated !== readyRes.updated) {
+          const r2 = await fetch(API+'/api/ready',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
+          if (r2?.updated && r2.updated !== currentUpdated) {
             clearInterval(pollInterval);
             _setStatus('✅ ได้ข้อมูลใหม่แล้ว กำลัง reload...');
             setTimeout(()=>window.location.reload(), 500);
