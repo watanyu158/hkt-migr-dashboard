@@ -1887,26 +1887,23 @@ function buildWeekdayChart(){
   });
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async()=>{
   const MAKE_WEBHOOK = 'https://hook.eu1.make.com/6mangbq9f8j4evhdv8252x1pjvnhlwsj';
   const syncLbl = document.getElementById('last-sync-lbl');
   const _setStatus = (msg) => { if(syncLbl) syncLbl.textContent = msg; };
   const pageLoadTime = Date.now();
 
-  // โหลดข้อมูลที่มีอยู่ก่อนเลย (อาจเป็นข้อมูลเก่า)
   await loadData();
   if(syncLbl) syncLbl.textContent = new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 
   try {
     const readyRes = await fetch(API+'/api/ready',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
-
     if (readyRes) {
       const currentUpdated = readyRes.updated || 0;
-      // trigger ถ้า updated น้อยกว่าเวลา page load (Make.com ส่งมาก่อนเราโหลด) หรือยังไม่เคยส่ง
       if (!currentUpdated || currentUpdated < pageLoadTime) {
         _setStatus('☁️ กำลังดึง Excel ล่าสุด...');
         try { await fetch(MAKE_WEBHOOK, {method:'POST', mode:'no-cors'}); } catch(e){}
-
         let waited = 0;
         const pollInterval = setInterval(async ()=>{
           waited += 3;
@@ -1922,7 +1919,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
     }
   } catch(e) {}
-});
+})();
 
 function buildGauge(pct, forExport=false){
   const cv=document.getElementById('gauge-c'); if(!cv) return;
