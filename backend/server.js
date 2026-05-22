@@ -317,7 +317,7 @@ function parseData() {
   const dailyRate   = Math.round(totalInstalled/daysToFinish*10)/10;
   const reqRate     = daysLeft > 0 ? Math.round(remaining/daysLeft*10)/10 : remaining;
   const needMore    = Math.round((reqRate - dailyRate)*10)/10;
-  const gaugePct    = pctDone;
+  const gaugePct    = reqRate > 0 ? Math.min(150, Math.round(dailyRate / reqRate * 100)) : (totalInstalled > 0 ? 100 : 0);
   const daysLate    = daysLeft < 0 ? Math.abs(daysLeft) : 0;
   const finishDateObj = dailyRate > 0 ? new Date(today.getTime() + Math.ceil(remaining/dailyRate)*86400000) : null;
   const finishDate  = finishDateObj ? finishDateObj.toISOString().slice(0,10) : null;
