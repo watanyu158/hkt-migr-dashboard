@@ -2029,11 +2029,27 @@ function buildTimeline(){
 
   // ใช้ SW_INF_SITES ถ้ามี ไม่งั้นใช้ FABRICS
   const _tlItems = SW_INF_SITES.length ? SW_INF_SITES : FABRICS;
+  // merge s/e จาก SITES
+  const _siteMap = {};
+  (SITES||[]).forEach(s=>{ _siteMap[s.n||s.name]=s; });
   const _fabLen = _tlItems.length;
 
   w.innerHTML=_tlItems.map((f,_fi)=>{
     const p  = f.p!=null ? Math.round(f.p) : Math.round((f.done||0)/(f.total||1)*100);
-    const pp = Math.min(100, Math.round(_overallPlanNow));
+    const _site = _siteMap[f.name||f.n]||f;
+    let pp = Math.min(100, Math.round(_overallPlanNow));
+    const _sStr = _site.s||_site.start, _eStr = _site.e||_site.end;
+    if(_sStr && _eStr){
+      const thM2={'ม.ค.':0,'ก.พ.':1,'มี.ค.':2,'เม.ย.':3,'พ.ค.':4,'มิ.ย.':5,'ก.ค.':6,'ส.ค.':7,'ก.ย.':8,'ต.ค.':9,'พ.ย.':10,'ธ.ค.':11};
+      const _p=(s)=>{const m=s.match(/(\d+)\s+(\S+)\s+(\d+)/);if(!m||thM2[m[2]]==null)return null;return new Date(2500+parseInt(m[3])-543,thM2[m[2]],parseInt(m[1]));};
+      const sd=_p(_sStr),ed=_p(_eStr);
+      const td=new Date();td.setHours(0,0,0,0);
+      if(sd&&ed){
+        if(td<sd) pp=0;
+        else if(td>=ed) pp=100;
+        else{const tot=Math.max(1,(ed-sd)/(864e5));pp=Math.min(100,Math.round((td-sd)/(864e5)/tot*100));}
+      }
+    }
     const gap=p-pp;
     const gapStr=(gap>=0?'+':'')+gap+'%';
     const gapColor=gap>=0?'#7a8f4c':'#a8452e';
