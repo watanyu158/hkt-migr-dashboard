@@ -164,9 +164,9 @@ function parseData() {
           if (!dayActBySite[site]) dayActBySite[site] = {};
           dayActBySite[site][instStr2] = (dayActBySite[site][instStr2]||0) + migration;
         }
-        // on-time
-        if (instStr2 && helperStr) {
-          if (instStr2 <= helperStr) { onTimeQty+=migration; if(instStr2<helperStr) earlyQty+=migration; }
+        // on-time: ตรงเวลาถ้าทำเสร็จภายใน start→end window
+        if (instStr2 && helperEndStr) {
+          if (instStr2 <= helperEndStr) { onTimeQty+=migration; if(instStr2<helperStr) earlyQty+=migration; }
           else lateQty += migration;
         }
       } else if (status.includes('Progress')) {
