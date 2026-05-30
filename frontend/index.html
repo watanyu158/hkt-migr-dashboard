@@ -3392,7 +3392,8 @@ async function loadData(){
     const finTH = `${fd.getDate()} ${thM[fd.getMonth()]} ${(fd.getFullYear()+543)%100}`;
 
     // topbar
-    const TOTAL_HKT = meta.total || 0; window.TOTAL_HKT = TOTAL_HKT;
+    const TOTAL_HKT = meta.total || 0;
+    const _isDone = meta.remaining <= 0; window.TOTAL_HKT = TOTAL_HKT;
     window._projStartStr = meta.proj_start || '2026-02-03';
     window._projEndStr   = meta.proj_end   || '2026-04-12';
     // อัพเดทวันเริ่ม/สิ้นสุดใน tab แผนงาน
@@ -3400,19 +3401,22 @@ async function loadData(){
     if(_e('pc-proj-start')) _e('pc-proj-start').textContent=_fmtTH2(meta.proj_start);
     if(_e('pc-proj-end'))   _e('pc-proj-end').textContent=_fmtTH2(meta.proj_end);
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${TOTAL_HKT}`;
-    if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
-    if(_e('pill-days-left')) _e('pill-days-left').textContent = ins.days_left;
-    if(_e('plan-days-left')) _e('plan-days-left').textContent = ins.days_left+' วัน';
-    if(_e('tb-days'))   _e('tb-days').textContent   = ins.days_left;
-    if(_e('tb-over'))   _e('tb-over').textContent   = meta.overdue;
-    if(_e('tb-rate'))   _e('tb-rate').textContent   = Number(ins.daily_rate).toFixed(1);
+    if(_e('tb-days'))   _e('tb-days').textContent   = _isDone ? '✅' : ins.days_left;
+    if(_e('pill-days-left')) _e('pill-days-left').textContent = _isDone ? '✅' : ins.days_left;
+    if(_e('plan-days-left')) _e('plan-days-left').textContent = _isDone ? 'เสร็จสิ้น' : ins.days_left+' วัน';
+    if(_e('tb-days'))   _e('tb-days').textContent   = _isDone ? '✅' : ins.days_left;
+    if(_e('tb-over'))   _e('tb-over').textContent   = _isDone ? '✅' : meta.overdue;
+    if(_e('tb-rate'))   _e('tb-rate').textContent   = _isDone ? '✅' : Number(ins.daily_rate).toFixed(1);
     if(_e('tb-pct'))    _e('tb-pct').textContent    = (meta.installed/meta.total*100).toFixed(1)+'%';
 
     // tb-status: ช้า/ตรงแผน
     const tbTxt=document.getElementById('tb-status-txt');
     const tbDot=document.getElementById('tb-sdot');
     if(tbTxt){
-      if(ins.days_late>0){
+      if(_isDone){
+        tbTxt.textContent=`🎉 เสร็จสิ้น — ก่อนกำหนด ${ins.days_early} วัน`;
+        if(tbDot){ tbDot.style.animation=''; tbDot.style.background='var(--success)'; tbDot.style.boxShadow='0 0 6px 2px rgba(43,196,138,.4)'; }
+      } else if(ins.days_late>0){
         tbTxt.textContent='ช้ากว่าแผน';
         if(tbDot){
           tbDot.style.animation='';
@@ -3483,7 +3487,7 @@ async function loadData(){
     // Tab แผนงาน
     const effPct = ins.req_rate>0 ? Math.round(ins.daily_rate/ins.req_rate*100) : 0;
     if(_e('plan-req-rate'))  _e('plan-req-rate').textContent  = ins.req_rate+' อุปกรณ์/วัน';
-    if(_e('plan-remaining')) _e('plan-remaining').textContent = meta.remaining.toLocaleString()+' อุปกรณ์';
+    if(_e('plan-remaining')) _e('plan-remaining').textContent = _isDone ? '✅ เสร็จสิ้น' : meta.remaining.toLocaleString()+' อุปกรณ์';
     // plan-plan-pct: plan ณ วันนี้
     const _todayPlanIdx=(()=>{
       const tl=String(_todayGMT7().getDate()).padStart(2,'0')+'/'+(String(_todayGMT7().getMonth()+1).padStart(2,'0'));
@@ -3526,7 +3530,7 @@ async function loadData(){
     }
 
     // pills
-    if(_e('pill-rem'))  _e('pill-rem').textContent  = meta.remaining.toLocaleString();
+    if(_e('pill-rem'))  _e('pill-rem').textContent  = _isDone ? '✅ เสร็จสิ้น' : meta.remaining.toLocaleString();
     if(_e('pill-hold')) _e('pill-hold').textContent = meta.hold;
     if(_e('pill-over')) _e('pill-over').textContent = meta.overdue;
     if(_e('hold-cnt'))  _e('hold-cnt').textContent  = meta.hold+' รายการ';
@@ -3548,10 +3552,14 @@ async function loadData(){
 
     // insight text — อัพเดทเสมอโดยไม่ check ข้อความเดิม
     (()=>{
-      const nm=Number(ins.need_more);
-      const col=nm<=0?'var(--success)':'var(--danger)';
-      const txt=nm<=0?'เกินเป้า '+Math.abs(nm).toFixed(1)+' อุปกรณ์/วัน':'ต้องเพิ่ม '+nm.toFixed(1)+' อุปกรณ์/วัน';
-      document.querySelectorAll('.ins-big em').forEach(em=>{em.textContent=txt;em.style.color=col;});
+      if(_isDone){
+        document.querySelectorAll('.ins-big em').forEach(em=>{em.textContent='🎉 งานเสร็จสิ้นแล้ว';em.style.color='var(--success)';em.style.fontSize='16px';});
+      } else {
+        const nm=Number(ins.need_more);
+        const col=nm<=0?'var(--success)':'var(--danger)';
+        const txt=nm<=0?'เกินเป้า '+Math.abs(nm).toFixed(1)+' อุปกรณ์/วัน':'ต้องเพิ่ม '+nm.toFixed(1)+' อุปกรณ์/วัน';
+        document.querySelectorAll('.ins-big em').forEach(em=>{em.textContent=txt;em.style.color=col;em.style.fontSize='';});
+      }
     })();
     (()=>{
       const pm=Number(ins.pct_more);
@@ -3566,7 +3574,12 @@ async function loadData(){
     if(rv[0]) rv[0].textContent=Number(ins.daily_rate).toFixed(1);
     if(rv[1]) rv[1].textContent=ins.req_rate;
     document.querySelectorAll('.ins-warn').forEach(w=>{
-      if(ins.days_late>0){
+      if(_isDone){
+        w.textContent=`🎉 งานเสร็จสิ้นแล้ว — เสร็จ ${finTH} ก่อนกำหนด ${ins.days_early} วัน`;
+        w.style.color='var(--success)';
+        w.style.background='rgba(43,196,138,.08)';
+        w.style.borderColor='rgba(43,196,138,.2)';
+      } else if(ins.days_late>0){
         w.textContent=`⚠ ถ้าไม่เพิ่ม → เสร็จ ${finTH} — ช้ากว่าเป้า ${ins.days_late} วัน`;
         w.style.color='var(--danger)';
         w.style.background='rgba(239,68,68,.08)';
@@ -3579,28 +3592,28 @@ async function loadData(){
       }
     });
     const kv=document.querySelectorAll('.ins-kpi-val');
-    if(kv[0]) kv[0].textContent=Number(ins.daily_rate).toFixed(1);
-    if(kv[1]) kv[1].textContent=ins.req_rate;
+    if(kv[0]) kv[0].textContent=_isDone?'✅':Number(ins.daily_rate).toFixed(1);
+    if(kv[1]) kv[1].textContent=_isDone?'–':ins.req_rate;
     if(kv[2]){
-      const nm2=Number(ins.need_more);
-      const col2=nm2<=0?'var(--success)':'var(--danger)';
-      const txt2=nm2<=0?'เกินเป้า '+Math.abs(nm2).toFixed(1):'ต้องเพิ่ม '+nm2.toFixed(1);
-      kv[2].textContent=txt2;
-      kv[2].style.color=col2;
-      const unit2=kv[2].nextElementSibling;
-      if(unit2){unit2.textContent='/วัน';unit2.style.color=col2;}
+      if(_isDone){ kv[2].textContent='เสร็จสิ้น'; kv[2].style.color='var(--success)'; const u=kv[2].nextElementSibling; if(u){u.textContent='';u.style.color='var(--success)';} }
+      else { const nm2=Number(ins.need_more); const col2=nm2<=0?'var(--success)':'var(--danger)'; const txt2=nm2<=0?'เกินเป้า '+Math.abs(nm2).toFixed(1):'ต้องเพิ่ม '+nm2.toFixed(1); kv[2].textContent=txt2; kv[2].style.color=col2; const unit2=kv[2].nextElementSibling; if(unit2){unit2.textContent='/วัน';unit2.style.color=col2;} }
     }
 
     // pills คาดเสร็จ / วันเหลือ
     document.querySelectorAll('.ip-val').forEach(el=>{
-      const lbl=el.nextElementSibling?.textContent||'';
-      if(lbl==='คาดเสร็จ') el.textContent=finTH;
-      if(lbl==='วันเหลือ') el.textContent=ins.days_left;
+      const lbl=el.nextElementSibling?.textContent?.trim()||'';
+      if(lbl==='คาดเสร็จ'||lbl==='เสร็จสิ้น') el.textContent=finTH||'–';
+      if(lbl==='วันเหลือ') el.textContent=_isDone?'✅':(ins.days_left||'–');
     });
+    document.querySelectorAll('.p-date .ip-lbl').forEach(el=>{ el.textContent=_isDone?'เสร็จสิ้น':'คาดเสร็จ'; });
+    document.querySelectorAll('.p-date .ip-icon').forEach(el=>{ el.textContent=_isDone?'🎉':'📅'; });
     document.querySelectorAll('.ip-sub').forEach(el=>{
       const lbl=el.previousElementSibling?.textContent||el.parentElement?.querySelector('.ip-lbl')?.textContent||'';
       if(el.closest('.p-date')){
-        if(ins.days_late>0){
+        if(_isDone){
+          el.textContent='ก่อนกำหนด '+ins.days_early+' วัน';
+          el.style.color='var(--success)';
+        } else if(ins.days_late>0){
           el.textContent='ช้า '+ins.days_late+' วัน';
           el.style.color='var(--danger)';
         } else if(ins.days_early>0){
