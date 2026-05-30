@@ -3393,7 +3393,8 @@ async function loadData(){
 
     // topbar
     const TOTAL_HKT = meta.total || 0;
-    const _isDone = meta.remaining <= 0; window.TOTAL_HKT = TOTAL_HKT;
+    const _isDone = meta.remaining <= 0;
+    const _isOverdue = !_isDone && ins.days_left <= 0; window.TOTAL_HKT = TOTAL_HKT;
     window._projStartStr = meta.proj_start || '2026-02-03';
     window._projEndStr   = meta.proj_end   || '2026-04-12';
     // อัพเดทวันเริ่ม/สิ้นสุดใน tab แผนงาน
@@ -3401,10 +3402,10 @@ async function loadData(){
     if(_e('pc-proj-start')) _e('pc-proj-start').textContent=_fmtTH2(meta.proj_start);
     if(_e('pc-proj-end'))   _e('pc-proj-end').textContent=_fmtTH2(meta.proj_end);
     if(_e('ts-done'))   _e('ts-done').textContent   = `${meta.installed}/${TOTAL_HKT}`;
-    if(_e('tb-days'))   _e('tb-days').textContent   = _isDone ? '✅' : ins.days_left;
+    if(_e('tb-days')){  _e('tb-days').textContent = _isDone ? '✅' : (_isOverdue ? `เกิน ${ins.days_late} วัน` : ins.days_left); _e('tb-days').style.color = _isOverdue ? 'var(--danger)' : ''; }
     if(_e('pill-days-left')) _e('pill-days-left').textContent = _isDone ? '✅' : ins.days_left;
     if(_e('plan-days-left')) _e('plan-days-left').textContent = _isDone ? 'เสร็จสิ้น' : ins.days_left+' วัน';
-    if(_e('tb-days'))   _e('tb-days').textContent   = _isDone ? '✅' : ins.days_left;
+    if(_e('tb-days')){  _e('tb-days').textContent = _isDone ? '✅' : (_isOverdue ? `เกิน ${ins.days_late} วัน` : ins.days_left); _e('tb-days').style.color = _isOverdue ? 'var(--danger)' : ''; }
     if(_e('tb-over'))   _e('tb-over').textContent   = _isDone ? '✅' : meta.overdue;
     if(_e('tb-rate'))   _e('tb-rate').textContent   = _isDone ? '✅' : Number(ins.daily_rate).toFixed(1);
     if(_e('tb-pct'))    _e('tb-pct').textContent    = (meta.installed/meta.total*100).toFixed(1)+'%';
@@ -3416,6 +3417,9 @@ async function loadData(){
       if(_isDone){
         tbTxt.textContent=`🎉 เสร็จสิ้น — ก่อนกำหนด ${ins.days_early} วัน`;
         if(tbDot){ tbDot.style.animation=''; tbDot.style.background='var(--success)'; tbDot.style.boxShadow='0 0 6px 2px rgba(43,196,138,.4)'; }
+      } else if(_isOverdue){
+        tbTxt.textContent=`⚠ เกินกำหนดแล้ว ${ins.days_late} วัน — คาดเสร็จ ${finTH}`;
+        if(tbDot){ tbDot.style.animation=''; tbDot.style.background='var(--danger)'; tbDot.style.boxShadow='0 0 6px 2px rgba(239,68,68,.4)'; }
       } else if(ins.days_late>0){
         tbTxt.textContent='ช้ากว่าแผน';
         if(tbDot){
@@ -3522,7 +3526,9 @@ async function loadData(){
     if(_e('plan-target-rate'))  _e('plan-target-rate').textContent  = targetRate+' อุปกรณ์/วัน';
     if(_e('plan-finish-date'))  _e('plan-finish-date').textContent  = finTH;
     if(_e('plan-status')){
-      const _st = ins.days_late>0 ? {txt:'↘ ช้ากว่าแผน', c:'var(--danger)'}
+      const _st = _isDone ? {txt:`🎉 เสร็จสิ้น — ก่อนกำหนด ${ins.days_early} วัน`, c:'var(--success)'}
+                : _isOverdue ? {txt:`🚨 เกินกำหนดแล้ว ${ins.days_late} วัน`, c:'var(--danger)'}
+                : ins.days_late>0 ? {txt:`↘ ล่าช้า — ช้ากว่าแผน ${ins.days_late} วัน`, c:'var(--danger)'}
                 : ins.days_early>0 ? {txt:'↗ เร็วกว่าแผน', c:'var(--success)'}
                 : {txt:'✓ ตรงแผน', c:'var(--success)'};
       _e('plan-status').textContent = _st.txt;
@@ -3606,13 +3612,16 @@ async function loadData(){
       if(lbl==='วันเหลือ') el.textContent=_isDone?'✅':(ins.days_left||'–');
     });
     document.querySelectorAll('.p-date .ip-lbl').forEach(el=>{ el.textContent=_isDone?'เสร็จสิ้น':'คาดเสร็จ'; });
-    document.querySelectorAll('.p-date .ip-icon').forEach(el=>{ el.textContent=_isDone?'🎉':'📅'; });
+    document.querySelectorAll('.p-date .ip-icon').forEach(el=>{ el.textContent=_isDone?'🎉':(_isOverdue?'🚨':'📅'); });
     document.querySelectorAll('.ip-sub').forEach(el=>{
       const lbl=el.previousElementSibling?.textContent||el.parentElement?.querySelector('.ip-lbl')?.textContent||'';
       if(el.closest('.p-date')){
         if(_isDone){
           el.textContent='ก่อนกำหนด '+ins.days_early+' วัน';
           el.style.color='var(--success)';
+        } else if(_isOverdue){
+          el.textContent='ช้ากว่าแผน '+ins.days_late+' วัน';
+          el.style.color='var(--danger)';
         } else if(ins.days_late>0){
           el.textContent='ช้า '+ins.days_late+' วัน';
           el.style.color='var(--danger)';
